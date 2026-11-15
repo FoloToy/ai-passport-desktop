@@ -183,6 +183,9 @@ func (j *restoreJob) open(port, mode string, attempts int) (Device, error) {
 		if ce, ok := err.(*CodedError); ok {
 			return nil, ce
 		}
+		if permissionDenied(err) {
+			return nil, permissionError(port)
+		}
 		return nil, coded("connect", "%v", err)
 	}
 	return d, nil

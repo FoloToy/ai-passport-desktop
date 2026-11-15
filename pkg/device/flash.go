@@ -101,6 +101,9 @@ func flashImage(ctx context.Context, connect Connector, req Request, on func(Eve
 	log := func(s string) { on(Event{Type: "log", Message: clip(s)}) }
 	on(Event{Type: "stage", Stage: "connecting"})
 	d, err := connect(req.Port, "default-reset", 4, log)
+	if permissionDenied(err) {
+		return permissionError(req.Port)
+	}
 	if err != nil {
 		return coded("connect", "%v", err)
 	}

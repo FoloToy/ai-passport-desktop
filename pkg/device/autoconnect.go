@@ -91,6 +91,10 @@ func (j *restoreJob) autoConnect() (Device, error) {
 			time.Sleep(j.interval)
 			continue
 		case len(found) == 1:
+			// Waiting cannot help when the port may not be opened; say why at once.
+			if permissionDenied(portAccess(found[0].Device)) {
+				return nil, permissionError(found[0].Device)
+			}
 			if !present || now.Sub(lastCapture) >= 3*time.Second {
 				lastCapture = now
 				d, err := tryCapture(found[0])
