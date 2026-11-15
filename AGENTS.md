@@ -7,7 +7,7 @@
 **AI Passport 玩法社区（离线桌面版）**：把 https://ai-passport.folotoy.cn/plays/ 的玩法全部下载到本地，离线浏览，并把玩法固件刷进 AI Passport（ESP32-C3，8 MB Flash）。另外有"设备工具"：备份固件（只读）和恢复出厂固件。
 
 - 仓库：`FoloToy/ai-passport-desktop`（公开，MIT 许可证，见 `LICENSE`），默认分支 `main`，PR 也提到 `main`。
-- 平台：macOS（arm64 / x86_64 / universal）、Windows 10/11 x64。
+- 平台：macOS（arm64 / x86_64 / universal）、Windows 10/11 x64、Linux（amd64 / arm64，Ubuntu 22.04+ / Debian 12+，`.deb` 和 `.tar.gz`）。
 - **Windows 7/8/8.1 不在这个仓库**：原生 Win32 客户端在 [ai-passport-desktop-windows7](https://github.com/FoloToy/ai-passport-desktop-windows7)，它以 Go 模块的方式引用本仓库的 `pkg/`。
 - 界面中英双语（`frontend/app.js` 里的 `I18N.zh` / `I18N.en`）。
 - 一次只操作一台设备，只支持 ESP32-C3。
@@ -16,7 +16,7 @@
 
 | 部分 | 实现 |
 | --- | --- |
-| 外壳 | Go 1.26.0（`GOTOOLCHAIN=go1.26.0`）+ Wails v3.0.0-beta.24（`ui_desktop.go`） |
+| 外壳 | Go 1.26.0（`GOTOOLCHAIN=go1.26.0`）+ Wails v3.0.0-beta.24（`ui_desktop.go`）；Linux 用 `-tags gtk3`（GTK 3 + WebKitGTK 4.1） |
 | 界面 | 原生 HTML/CSS/JS，没有构建步骤，`embed` 进二进制（`frontend/`） |
 | 刷机 | 纯 Go：`pkg/esp`（ESP 串口协议 + esp-flasher-stub）、`pkg/device`（任务），在 App 进程内运行。**没有 Python、没有 esptool** |
 | 串口 | `go.bug.st/serial` v1.8.0 |
@@ -25,7 +25,7 @@
 
 ```
 main.go               启动、命令行参数（-headless -listen -state-dir -origin -self-test）、127.0.0.1 调试服务
-ui_desktop.go         Wails 窗口（macOS / Win10+）
+ui_desktop.go         Wails 窗口（macOS / Win10+ / Linux）
 frontend/             index.html app.css app.js（单文件 SPA，含全部中英文案）
 internal/
   esp/                ESP32-C3 串口协议：SLIP、命令、同步、复位、stub、压缩写、读、MD5、看门狗复位
@@ -127,4 +127,5 @@ ESP_REAL_BACKUP_DIR=<目录> go test -count=1 -v -run TestRealDeviceBackup ./pkg
 
 - 刷入玩法和恢复出厂的**写入流程还没有在真机上跑过**（只在 QEMU 上验证）；读、备份、两种自动重启已在真机验证。
 - Intel Mac 版只在 Rosetta 下自检过。
+- Linux 版只在容器里自检过（Ubuntu 22.04 编译、24.04 安装），没有在有桌面的 Linux 上打开过窗口、也没有接真机；udev 规则没在真机上验证。
 - 待办以 `PLAN.md` 第 13 节为准，完成一项就更新那里。

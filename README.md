@@ -4,7 +4,7 @@
 
 The offline desktop edition of the AI Passport App Library. It downloads every play, image and firmware to your computer, then lets you browse and install plays to an AI Passport over USB without a network.
 
-支持 macOS 和 Windows 10/11。Windows 7 / 8 / 8.1 请用单独的原生客户端 [ai-passport-desktop-windows7](https://github.com/FoloToy/ai-passport-desktop-windows7)。
+支持 macOS、Windows 10/11 和 Linux（Ubuntu 22.04 / Debian 12 及以上，x86_64 和 ARM64）。Windows 7 / 8 / 8.1 请用单独的原生客户端 [ai-passport-desktop-windows7](https://github.com/FoloToy/ai-passport-desktop-windows7)。
 
 ## 功能
 
@@ -72,7 +72,7 @@ plays/<slug>/firmware.bin  已校验的固件
 avatars/<name>.webp        作者头像
 ```
 
-设置本身保存在 `~/Library/Application Support/FoloToy/AI Passport Plays/settings.json`，只记录目录、备份目录和语言。恢复出厂时，内置固件会先解压到同一目录下的 `factory-firmware/` 并再次校验。
+设置本身保存在 `~/Library/Application Support/FoloToy/AI Passport Plays/settings.json`（Linux 是 `~/.config/FoloToy/AI Passport Plays/`），只记录目录、备份目录和语言。恢复出厂时，内置固件会先解压到同一目录下的 `factory-firmware/` 并再次校验。
 
 ## 架构
 
@@ -152,6 +152,25 @@ powershell -ExecutionPolicy Bypass -File scripts\build-on-windows.ps1 -Upload  #
 ```
 
 会生成 `dist\windows\` 下的 Setup.exe 安装包和免安装 ZIP。完整步骤和排错见 [docs/WINDOWS-BUILD.md](docs/WINDOWS-BUILD.md)。
+
+## 打包（Linux）
+
+在装了 Docker 的 Mac 或 Linux 上运行（Mac 上用 OrbStack 或 Docker Desktop，另一种架构靠模拟运行，比较慢）：
+
+```sh
+scripts/package-linux.sh                          # amd64 和 arm64 的 .deb 和 .tar.gz
+LINUX_ARCHES=amd64 ALLOW_DIRTY=1 scripts/package-linux.sh
+```
+
+每个架构都在 `ubuntu:22.04` 容器里编译（GTK 3 + WebKitGTK 4.1，`-tags gtk3`），所以只需要 glibc 2.35，Ubuntu 22.04、24.04 和 Debian 12 都能用。脚本会在容器里跑 `go vet`、`go test` 和自检，最后把 .deb 装到干净的 `ubuntu:24.04` 里再自检一次。Go、模块和 apt 下载缓存在 `.runtime/linux/`。
+
+| 文件 | 适用 |
+| --- | --- |
+| `AI-Passport-Plays-<版本>-Linux-amd64.deb` | Ubuntu / Debian，x86_64（推荐） |
+| `AI-Passport-Plays-<版本>-Linux-arm64.deb` | Ubuntu / Debian，ARM64 |
+| `AI-Passport-Plays-<版本>-Linux-{amd64,arm64}.tar.gz` | 其他发行版，需要自己装 GTK 3 和 WebKitGTK 4.1 |
+
+**串口权限**：Ubuntu 上 `/dev/ttyACM*` 默认只有 `dialout` 组能打开。.deb 会装 `/usr/lib/udev/rules.d/60-ai-passport.rules`（`scripts/linux/`），给当前登录的用户开放 AI Passport（`303a:1001`）的串口，并让 ModemManager 不去探测它；装完重新插拔一次设备即可。没有权限时 App 会直接报 `port_permission`，不会一直等。
 
 ## 许可证
 

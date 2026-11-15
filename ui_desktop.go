@@ -12,7 +12,8 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
-// runUI shows the UI in a native WebView window (macOS, Windows 10 and later).
+// runUI shows the UI in a native WebView window (macOS, Windows 10 and later, and
+// Linux through WebKitGTK; build Linux with -tags gtk3, see scripts/package-linux.sh).
 func runUI(server *desktop.Server, flash *flasher.Manager, sync *syncer.Manager) {
 	app := application.New(application.Options{
 		Name:        appTitle,

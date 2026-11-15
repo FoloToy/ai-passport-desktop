@@ -29,6 +29,7 @@ go run github.com/tc-hib/go-winres@v0.3.3 simply --icon assets/icon.png --manife
 | 平台 | 在哪里打 | 命令 | 产物 |
 | --- | --- | --- | --- |
 | macOS arm64 / x86_64 / universal | Apple 芯片的 Mac | `scripts/package-mac.sh` | `dist/AI-Passport-Plays-X.Y.Z-macOS-{arm64,x86_64,universal}.dmg` |
+| Linux amd64 / arm64 | 装了 Docker 的 Mac（OrbStack）或 Linux | `scripts/package-linux.sh` | `dist/AI-Passport-Plays-X.Y.Z-Linux-{amd64,arm64}.{deb,tar.gz}` |
 | Windows 10/11 x64 | Windows 10/11 机器 | `powershell -ExecutionPolicy Bypass -File scripts\build-on-windows.ps1` | `dist\windows\…-Windows-x64-Setup.exe` 和 `…-Windows-x64.zip` |
 
 每个产物旁边都有 `.sha256` 文件，一起上传。
@@ -50,12 +51,12 @@ ssh <windows-host> "cd build && git clone -b main plays.bundle ai-passport-deskt
 ```sh
 gh release create vX.Y.Z --target <完整的 commit SHA> --prerelease \
   --title "vX.Y.Z：一句话概括" --notes-file notes.md \
-  dist/*.dmg dist/*.dmg.sha256 dist/windows/*
+  dist/*.dmg dist/*.dmg.sha256 dist/*.deb dist/*.deb.sha256 dist/*.tar.gz dist/*.tar.gz.sha256 dist/windows/*
 ```
 
 - 在没有真机验收前，一律标记 `--prerelease`。
 - 发布说明用中文，结构参照上一个版本：一句话概括 → 下载对照表（系统 → 文件名）→ **新增** / **修复** → **测试情况**（如实写哪些在真机上验证过、哪些没有、有没有代码签名）。
-- 发布后核对资产列表（10 个文件：3 个 DMG、Setup.exe、ZIP，各带 `.sha256`）。
+- 发布后核对资产列表（18 个文件：3 个 DMG、2 个 .deb、2 个 .tar.gz、Setup.exe、ZIP，各带 `.sha256`）。
 
 ## 4. 上传到火山引擎 TOS（下载页）
 
@@ -65,7 +66,7 @@ gh release create vX.Y.Z --target <完整的 commit SHA> --prerelease \
 scripts/publish-tos.py --product desktop --version X.Y.Z --date YYYY-MM-DD \
   --commit <完整的 commit SHA> --prerelease \
   --summary-zh "一句话中文概括" --summary-en "One-sentence English summary" \
-  --dry-run dist/*.dmg dist/windows/*.exe dist/windows/*.zip
+  --dry-run dist/*.dmg dist/windows/*.exe dist/windows/*.zip dist/*.deb dist/*.tar.gz
 ```
 
 先带 `--dry-run` 检查文件名、版本号、和 `.sha256` 是否一致，没问题再去掉 `--dry-run` 正式上传。需要配置好 `tosutil`（`~/.tosutilconfig`，不要把密钥提交或贴出来）。

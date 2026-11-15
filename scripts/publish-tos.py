@@ -3,7 +3,7 @@
 
 Layout in tos://folotoy-ai-passport/tools/ai-passport-desktop/ (public read):
 
-    desktop/v0.4.1/<files> + SHA256SUMS.txt     macOS and Windows 10/11 builds
+    desktop/v0.4.1/<files> + SHA256SUMS.txt     macOS, Windows 10/11 and Linux builds
     windows7/v0.1.0/<files> + SHA256SUMS.txt    the native Windows 7/8/8.1 client
     releases.json                               every version of both, newest first
 
@@ -16,7 +16,8 @@ Needs tosutil configured for the bucket (~/.tosutilconfig). Example:
 
     scripts/publish-tos.py --product desktop --version 0.4.1 --date 2026-11-13 \
       --commit <full SHA> --prerelease \
-      --summary-zh "..." --summary-en "..." dist/*.dmg dist/windows/*.exe dist/windows/*.zip
+      --summary-zh "..." --summary-en "..." dist/*.dmg dist/windows/*.exe dist/windows/*.zip \\
+      dist/*.deb dist/*.tar.gz
 """
 
 import argparse
@@ -53,9 +54,16 @@ PATTERNS = [
     (r"-macOS-universal\.dmg$", "desktop", "macos-universal"),
     (r"-Windows-x64-Setup\.exe$", "desktop", "windows-x64-setup"),
     (r"-Windows-x64\.zip$", "desktop", "windows-x64-zip"),
+    (r"-Linux-amd64\.deb$", "desktop", "linux-amd64-deb"),
+    (r"-Linux-arm64\.deb$", "desktop", "linux-arm64-deb"),
+    (r"-Linux-amd64\.tar\.gz$", "desktop", "linux-amd64-tar"),
+    (r"-Linux-arm64\.tar\.gz$", "desktop", "linux-arm64-tar"),
     (r"-Windows7-[\d.]+-x64\.zip$", "windows7", "windows7-x64"),
     (r"-Windows7-[\d.]+-x86\.zip$", "windows7", "windows7-x86"),
 ]
+
+CONTENT_TYPES = [(".dmg", "application/x-apple-diskimage"), (".zip", "application/zip"),
+                 (".deb", "application/vnd.debian.binary-package"), (".tar.gz", "application/gzip")]
 
 
 def platform_of(name, product):
@@ -176,8 +184,7 @@ def main():
 
     with tempfile.TemporaryDirectory() as tmp:
         for f in files:
-            ctype = "application/x-apple-diskimage" if f["name"].endswith(".dmg") else (
-                "application/zip" if f["name"].endswith(".zip") else "application/octet-stream")
+            ctype = next((t for ext, t in CONTENT_TYPES if f["name"].endswith(ext)), "application/octet-stream")
             upload(f["local"], f"{folder}/{f['name']}", ctype, "public, max-age=31536000, immutable")
             print("uploaded", f["name"])
         sums = os.path.join(tmp, "SHA256SUMS.txt")
