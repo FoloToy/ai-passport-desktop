@@ -15,6 +15,7 @@ import (
 // runUI shows the UI in a native WebView window (macOS, Windows 10 and later, and
 // Linux through WebKitGTK; build Linux with -tags gtk3, see scripts/package-linux.sh).
 func runUI(server *desktop.Server, flash *flasher.Manager, sync *syncer.Manager) {
+	prepareLinuxDisplay() // before GTK starts
 	app := application.New(application.Options{
 		Name:        appTitle,
 		Description: "Offline AI Passport play library and flasher",
