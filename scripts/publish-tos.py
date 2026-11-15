@@ -5,6 +5,7 @@ Layout in tos://folotoy-ai-passport/tools/ai-passport-desktop/ (public read):
 
     desktop/v0.4.1/<files> + SHA256SUMS.txt     macOS, Windows 10/11 and Linux builds
     windows7/v0.1.0/<files> + SHA256SUMS.txt    the native Windows 7/8/8.1 client
+    android/v0.1.0/<apk> + SHA256SUMS.txt       the Android app (repo is private: pass --notes-url)
     releases.json                               every version of both, newest first
 
 A version folder is written once and never changed; publishing a version that
@@ -34,7 +35,11 @@ from datetime import datetime, timezone
 
 BUCKET = "folotoy-ai-passport"
 PREFIX = "tools/ai-passport-desktop"
+# The bucket endpoint serves releases.json (no CDN delay). Downloads go through the
+# s.folotoy.cn CDN in front of the same bucket: TOS refuses to serve .apk files on
+# its own endpoint, and the CDN is faster in mainland China.
 PUBLIC = f"https://{BUCKET}.tos-cn-beijing.volces.com/{PREFIX}"
+DOWNLOADS = f"https://s.folotoy.cn/{PREFIX}"
 
 PRODUCTS = {
     "desktop": {
@@ -44,6 +49,10 @@ PRODUCTS = {
     "windows7": {
         "name": {"zh": "AI Passport 玩法社区（Windows 7 版）", "en": "AI Passport App Library (Windows 7 edition)"},
         "repo": "https://github.com/FoloToy/ai-passport-desktop-windows7",
+    },
+    "android": {
+        "name": {"zh": "AI Passport 玩法社区（安卓版）", "en": "AI Passport App Library (Android)"},
+        "repo": "https://github.com/FoloToy/ai-passport-android",
     },
 }
 
@@ -60,10 +69,12 @@ PATTERNS = [
     (r"-Linux-arm64\.tar\.gz$", "desktop", "linux-arm64-tar"),
     (r"-Windows7-[\d.]+-x64\.zip$", "windows7", "windows7-x64"),
     (r"-Windows7-[\d.]+-x86\.zip$", "windows7", "windows7-x86"),
+    (r"^AI-Passport-Android-[\d.]+\.apk$", "android", "android-apk"),
 ]
 
 CONTENT_TYPES = [(".dmg", "application/x-apple-diskimage"), (".zip", "application/zip"),
-                 (".deb", "application/vnd.debian.binary-package"), (".tar.gz", "application/gzip")]
+                 (".deb", "application/vnd.debian.binary-package"), (".tar.gz", "application/gzip"),
+                 (".apk", "application/vnd.android.package-archive")]
 
 
 def platform_of(name, product):
@@ -114,6 +125,37 @@ def version_key(v):
     return tuple(int(x) for x in re.findall(r"\d+", v))
 
 
+def save_index(index, previous):
+    with tempfile.TemporaryDirectory() as tmp:
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        hist = os.path.join(tmp, "previous.json")
+        open(hist, "w").write(previous)
+        upload(hist, f"{PREFIX}/history/releases-{stamp}.json", "application/json; charset=utf-8", "no-cache")
+        new = os.path.join(tmp, "releases.json")
+        with open(new, "w") as out:
+            json.dump(index, out, ensure_ascii=False, indent=1)
+            out.write("\n")
+        upload(new, f"{PREFIX}/releases.json", "application/json; charset=utf-8", "no-cache")
+
+
+def reindex():
+    """Point every download link at the CDN; files themselves are not touched."""
+    index = fetch_index()
+    previous = json.dumps(index, ensure_ascii=False, indent=1)
+    for prod in index["products"].values():
+        for rel in prod["releases"]:
+            for f in rel["files"]:
+                f["url"] = f["url"].replace(PUBLIC, DOWNLOADS)
+                req = urllib.request.Request(f["url"], method="HEAD")
+                with urllib.request.urlopen(req, timeout=30) as r:
+                    if int(r.headers["Content-Length"]) != f["size"]:
+                        sys.exit(f"{f['url']}: size differs on the CDN")
+    index["base"] = DOWNLOADS
+    index["updatedAt"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    save_index(index, previous)
+    print("Download links now use", DOWNLOADS)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--product", required=True, choices=PRODUCTS)
@@ -126,6 +168,8 @@ def main():
     p.add_argument("--notes-url", help="release notes page (default: the GitHub release)")
     p.add_argument("--dry-run", action="store_true", help="check everything, upload nothing")
     p.add_argument("files", nargs="+")
+    if sys.argv[1:] == ["--reindex"]:  # only rewrite download links to the CDN
+        return reindex()
     a = p.parse_args()
 
     if not re.fullmatch(r"\d+\.\d+\.\d+", a.version):
@@ -151,7 +195,7 @@ def main():
             if want != digest:
                 sys.exit(f"{name}: SHA-256 does not match {os.path.basename(sidecar)}")
         files.append({"platform": platform, "name": name, "size": os.path.getsize(path), "sha256": digest,
-                      "url": f"{PUBLIC}/{a.product}/v{a.version}/{name}", "local": path})
+                      "url": f"{DOWNLOADS}/{a.product}/v{a.version}/{name}", "local": path})
 
     index = fetch_index() or {"schema": 1, "products": {}}
     product = index["products"].setdefault(a.product, {**PRODUCTS[a.product], "releases": []})
@@ -174,7 +218,11 @@ def main():
     product["releases"].sort(key=lambda r: version_key(r["version"]), reverse=True)
     previous = json.dumps(index, ensure_ascii=False, indent=1) if index.get("updatedAt") else None
     index["updatedAt"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    index["base"] = PUBLIC
+    index["base"] = DOWNLOADS
+    for prod in index["products"].values():
+        for rel in prod["releases"]:
+            for f in rel["files"]:
+                f["url"] = f["url"].replace(PUBLIC, DOWNLOADS)
 
     for f in files:
         print(f"{f['platform']:20} {f['name']}  {f['size']:>10}  {f['sha256']}")
