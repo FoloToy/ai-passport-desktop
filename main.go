@@ -24,7 +24,7 @@ import (
 	"github.com/FoloToy/ai-passport-desktop/pkg/syncer"
 )
 
-var version = "0.5.0-dev"
+var version = "0.5.1-dev"
 
 const appTitle = "AI Passport 玩法社区"
 
