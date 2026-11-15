@@ -1,6 +1,6 @@
 # 发版
 
-只有用户要求时才发版。Release 页面**只保留最新的一个版本**：新版本发布成功后，删掉旧的 Release 和 tag。
+只有用户要求时才发版。Release 页面**只保留最新的一个版本**：新版本发布成功后，删掉旧的 Release 和 tag。所有版本都保存在火山引擎 TOS 上（第 4 步）。
 
 ## 1. 改版本号
 
@@ -57,7 +57,29 @@ gh release create vX.Y.Z --target <完整的 commit SHA> --prerelease \
 - 发布说明用中文，结构参照上一个版本：一句话概括 → 下载对照表（系统 → 文件名）→ **新增** / **修复** → **测试情况**（如实写哪些在真机上验证过、哪些没有、有没有代码签名）。
 - 发布后核对资产列表（10 个文件：3 个 DMG、Setup.exe、ZIP，各带 `.sha256`）。
 
-## 4. 清理旧版本
+## 4. 上传到火山引擎 TOS（下载页）
+
+官网的下载页 https://ai-passport.folotoy.cn/tools/desktop-app/ 读取 TOS 上的 `releases.json`，GitHub Release 发好后再传一份到 TOS。每个版本放在自己的文件夹里，**只写一次、永不覆盖**（脚本拒绝重复发布同一个版本）；`releases.json` 每次更新前，旧的一份存进 `history/`。
+
+```sh
+scripts/publish-tos.py --product desktop --version X.Y.Z --date YYYY-MM-DD \
+  --commit <完整的 commit SHA> --prerelease \
+  --summary-zh "一句话中文概括" --summary-en "One-sentence English summary" \
+  --dry-run dist/*.dmg dist/windows/*.exe dist/windows/*.zip
+```
+
+先带 `--dry-run` 检查文件名、版本号、和 `.sha256` 是否一致，没问题再去掉 `--dry-run` 正式上传。需要配置好 `tosutil`（`~/.tosutilconfig`，不要把密钥提交或贴出来）。
+
+| 位置 | 内容 |
+| --- | --- |
+| `tos://folotoy-ai-passport/tools/ai-passport-desktop/desktop/vX.Y.Z/` | 安装包和 `SHA256SUMS.txt` |
+| `…/windows7/vX.Y.Z/` | Windows 7 版（在那个仓库发） |
+| `…/releases.json` | 两个产品的全部版本，新版在前；下载页直接读，不用重新部署官网 |
+| `…/history/` | 每次更新前的 `releases.json` |
+
+公开地址前缀是 `https://folotoy-ai-passport.tos-cn-beijing.volces.com/tools/ai-passport-desktop/`。上传后打开下载页，确认新版本出现、链接能下载。
+
+## 5. 清理旧版本
 
 ```sh
 gh release list

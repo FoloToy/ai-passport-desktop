@@ -38,7 +38,7 @@ internal/
   library/            本地玩法库目录结构
   desktop/            本地 JSON API（/api/*，X-Plays-Token 鉴权）、媒体文件、内嵌界面
   settings/ instance/ 设置文件、单实例锁
-scripts/              打包脚本（见 docs/RELEASE.md）
+scripts/              打包脚本、publish-tos.py（上传到火山引擎 TOS），见 docs/RELEASE.md
 docs/                 WINDOWS-BUILD.md（Win10+ 打包）、RELEASE.md（发版）
 PLAN.md               最初的开发方案、已确认的决定、待办
 ```
@@ -121,7 +121,7 @@ ESP_REAL_BACKUP_DIR=<目录> go test -count=1 -v -run TestRealDeviceBackup ./pkg
 
 ## 发版
 
-步骤、要改版本号的位置、各平台怎么打包、发布说明怎么写，见 [docs/RELEASE.md](docs/RELEASE.md)。Release 页面只保留最新的一个版本。
+步骤、要改版本号的位置、各平台怎么打包、发布说明怎么写，见 [docs/RELEASE.md](docs/RELEASE.md)。Release 页面只保留最新的一个版本。所有版本的安装包另存在火山引擎 TOS 上，由 `scripts/publish-tos.py` 上传，官网下载页（`/tools/desktop-app/`）读取那里的 `releases.json`。
 
 ## 还没验证的部分（改相关代码时要特别小心）
 
