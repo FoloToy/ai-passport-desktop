@@ -133,6 +133,7 @@ func TestFullThenIncrementalSync(t *testing.T) {
 	defer srv.Close()
 	root := t.TempDir()
 	m := New(NewClient(srv.URL, "test"))
+	m.SetPrefetchFirmware(true)
 	indexed := 0
 	m.OnIndex = func() { indexed++ }
 
@@ -209,6 +210,7 @@ func TestCorruptFirmwareIsRejected(t *testing.T) {
 	defer srv.Close()
 	root := t.TempDir()
 	m := New(NewClient(srv.URL, "test"))
+	m.SetPrefetchFirmware(true)
 	if err := m.Start(root); err != nil {
 		t.Fatal(err)
 	}
@@ -222,6 +224,31 @@ func TestCorruptFirmwareIsRejected(t *testing.T) {
 	idx, _ := library.Library{Root: root}.LoadIndex()
 	if idx.Complete {
 		t.Fatal("index must be marked incomplete")
+	}
+}
+
+// By default an update downloads the catalog and images only; no firmware is fetched.
+func TestSyncSkipsFirmwareByDefault(t *testing.T) {
+	site := newFakeSite(3)
+	srv := httptest.NewServer(site)
+	defer srv.Close()
+	root := t.TempDir()
+	m := New(NewClient(srv.URL, "test"))
+	if err := m.Start(root); err != nil {
+		t.Fatal(err)
+	}
+	st := waitIdle(t, m)
+	if st.Phase != "done" || st.FirmwareTotal != 0 || st.Added != 3 {
+		t.Fatalf("unexpected state %+v", st)
+	}
+	for _, slug := range []string{"play-1", "play-2", "play-3"} {
+		if _, err := os.Stat(filepath.Join(root, "plays", slug, "firmware.bin")); !os.IsNotExist(err) {
+			t.Fatalf("%s firmware must not be downloaded", slug)
+		}
+	}
+	idx, _ := library.Library{Root: root}.LoadIndex()
+	if idx == nil || !idx.Complete {
+		t.Fatal("a catalog-only update is complete")
 	}
 }
 

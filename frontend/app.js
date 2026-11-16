@@ -24,7 +24,7 @@ const I18N = {
     downloads: '下载', hearts: '点赞', favorites: '收藏', comments: '评论',
     // onboarding
     welcome_title: '欢迎使用 AI Passport 玩法社区',
-    welcome_sub: '首次使用需要把玩法社区的全部玩法、图片和固件下载到电脑上。下载完成后，不联网也能浏览和刷机。',
+    welcome_sub: '首次使用需要把玩法社区的玩法信息和图片下载到电脑上，之后不联网也能浏览。固件在第一次刷入某个玩法时下载，下载过的会保存下来，下次刷入不用再下载。',
     folder_label: '玩法存储目录', change: '更改', start_update: '开始更新',
     fact_plays: '玩法数量', fact_size: '预计占用', fact_free: '可用空间', about_n: n => `约 ${n}`,
     unknown: '未知', path_ph: '输入一个完整的文件夹路径',
@@ -58,8 +58,9 @@ const I18N = {
     // settings
     settings_title: '设置', s_library: '玩法存储目录', s_library_sub: '玩法、图片和固件都保存在这里。',
     change_dir: '更改目录', reveal: '在访达中打开', reveal_win: '在资源管理器中打开', usage: '已占用', files: '文件数', free: '可用空间',
-    s_data: '玩法数据', s_data_sub: '从 AI Passport 玩法社区下载最新的玩法。', last_sync: '上次更新',
-    never: '从未更新', plays_ready: '可刷入玩法', check_update: '检查更新', checking: '正在检查…',
+    s_data: '玩法数据', s_data_sub: '从 AI Passport 玩法社区下载最新的玩法。固件在刷入时按需下载，并保存在玩法目录里。',
+    s_advanced: '高级', s_prefetch: '更新玩法库时下载全部固件', s_prefetch_sub: '默认关闭。打开后，“立即更新”会把所有玩法的固件都下载下来（约 3 GB）。固件服务器有下载频率限制，大量下载时会被暂停。只在需要完全离线刷机时打开。', advanced_on: '已显示高级设置', advanced_off: '已隐藏高级设置', on: '开', off: '关', last_sync: '上次更新',
+    never: '从未更新', plays_ready: '已下载固件', check_update: '检查更新', checking: '正在检查…',
     up_to_date: '已是最新', status: '状态', complete: '完整', incomplete: '未完成',
     s_language: '语言', lang_auto: '跟随系统', s_about: '关于', version: '版本', worker: '刷机组件',
     worker_ok: '已就绪', worker_missing: '缺失（请使用完整安装包）', source: '数据来源',
@@ -125,7 +126,7 @@ const I18N = {
     no_firmware: 'This firmware has not been downloaded yet. Update the library first.', removed_note: 'This app was removed from the community; a local copy is kept.',
     downloads: 'Downloads', hearts: 'Likes', favorites: 'Saves', comments: 'Comments',
     welcome_title: 'Welcome to the AI Passport App Library',
-    welcome_sub: 'First, download every app, image and firmware from the community to this computer. After that you can browse and install apps without a network.',
+    welcome_sub: 'First, download the app info and images from the community to this computer; after that you can browse without a network. Firmware is downloaded the first time you install an app and kept, so the next install needs no download.',
     folder_label: 'Library folder', change: 'Change', start_update: 'Start download',
     fact_plays: 'Apps', fact_size: 'Estimated size', fact_free: 'Free space', about_n: n => `about ${n}`,
     unknown: 'Unknown', path_ph: 'Type a full folder path',
@@ -156,8 +157,9 @@ const I18N = {
     retry: 'Retry', done: 'Done', log: 'Details', chip: 'Chip', mac: 'MAC', flash_size: 'Flash',
     settings_title: 'Settings', s_library: 'Library folder', s_library_sub: 'Apps, images and firmware are stored here.',
     change_dir: 'Change folder', reveal: 'Show in Finder', reveal_win: 'Show in Explorer', usage: 'Used', files: 'Files', free: 'Free space',
-    s_data: 'App data', s_data_sub: 'Download the latest apps from the AI Passport community.', last_sync: 'Last update',
-    never: 'Never', plays_ready: 'Installable apps', check_update: 'Check for updates', checking: 'Checking…',
+    s_data: 'App data', s_data_sub: 'Download the latest apps from the AI Passport community. Firmware is downloaded when you install an app and kept in the library folder.',
+    s_advanced: 'Advanced', s_prefetch: 'Download all firmware when updating', s_prefetch_sub: 'Off by default. When on, "Update now" downloads the firmware of every app (about 3 GB). The firmware server limits how often you can download, so a large download gets paused. Turn this on only if you need to install apps fully offline.', advanced_on: 'Advanced settings shown', advanced_off: 'Advanced settings hidden', on: 'On', off: 'Off', last_sync: 'Last update',
+    never: 'Never', plays_ready: 'Firmware downloaded', check_update: 'Check for updates', checking: 'Checking…',
     up_to_date: 'Up to date', status: 'Status', complete: 'Complete', incomplete: 'Incomplete',
     s_language: 'Language', lang_auto: 'System', s_about: 'About', version: 'Version', worker: 'Flashing component',
     worker_ok: 'Ready', worker_missing: 'Missing (use the full installer)', source: 'Source',
@@ -302,6 +304,8 @@ const S = {
   flash: { slug: null, ports: null, port: '', scanning: false, scanTimer: null },
   pendingDir: '',
   checking: false,
+  advanced: localStorage.getItem('plays-advanced') === '1',
+  versionTaps: [],
 };
 
 function resolveLang() {
@@ -438,7 +442,7 @@ function renderWelcome() {
     ${folder}
     <div class="facts">
       <div><b>1,200+</b><span>${t('fact_plays')}</span></div>
-      <div><b>${t('about_n', '3.2 GB')}</b><span>${t('fact_size')}</span></div>
+      <div><b>${t('about_n', '500 MB')}</b><span>${t('fact_size')}</span></div>
       <div><b>${lib.free ? fmtBytes(lib.free) : t('unknown')}</b><span>${t('fact_free')}</span></div>
     </div>
     ${S.server.sync.phase === 'failed' ? `<div class="notice red">${esc(errText(S.server.sync.errorCode, S.server.sync.error))}</div><div class="sp16"></div>` : ''}
@@ -1050,10 +1054,17 @@ function renderSettings() {
       <h2>${t('s_language')}</h2>
       <div class="segmented mt10">${[['auto', t('lang_auto')], ['zh', '中文'], ['en', 'English']].map(([k, label]) => `<button class="${st.language === k ? 'active' : ''}" data-action="set-lang" data-lang="${k}">${label}</button>`).join('')}</div>
     </section>
+    ${S.advanced ? `<section class="panel">
+      <h2>${t('s_advanced')}</h2>
+      <div class="setting-row">
+        <div><b>${t('s_prefetch')}</b><p>${t('s_prefetch_sub')}</p></div>
+        <div class="segmented">${[[false, t('off')], [true, t('on')]].map(([v, label]) => `<button class="${!!st.prefetch === v ? 'active' : ''}" data-action="set-prefetch" data-on="${v}">${label}</button>`).join('')}</div>
+      </div>
+    </section>` : ''}
     <section class="panel">
       <h2>${t('s_about')}</h2>
       <dl class="kv">
-        <dt>${t('version')}</dt><dd>${esc(st.version)}</dd>
+        <dt>${t('version')}</dt><dd class="version-tap" data-action="version-tap">${esc(st.version)}</dd>
         <dt>${t('worker')}</dt><dd>${st.worker ? t('worker_ok') : t('worker_missing')}</dd>
         <dt>${t('source')}</dt><dd>ai-passport.folotoy.cn</dd>
       </dl>
@@ -1102,6 +1113,25 @@ const actions = {
   'rail': el => { const r = $('#rail'); if (r) r.scrollBy({ left: Number(el.dataset.dir) * r.clientWidth, behavior: 'smooth' }); },
   'toggle-lang': async () => { await setLanguage(lang === 'zh' ? 'en' : 'zh'); },
   'set-lang': async el => { await setLanguage(el.dataset.lang); },
+  // Hidden settings: tap the version number 5 times within 3 seconds to show or hide them.
+  'version-tap': () => {
+    const now = Date.now();
+    S.versionTaps = S.versionTaps.filter(x => now - x < 3000).concat(now);
+    if (S.versionTaps.length < 5) return;
+    S.versionTaps = [];
+    S.advanced = !S.advanced;
+    localStorage.setItem('plays-advanced', S.advanced ? '1' : '0');
+    toast(t(S.advanced ? 'advanced_on' : 'advanced_off'));
+    render();
+  },
+  'set-prefetch': async el => {
+    try {
+      await api('settings/prefetch', { on: el.dataset.on === 'true' });
+      S.server.prefetch = el.dataset.on === 'true';
+      toast(t('saved'));
+      render();
+    } catch (e) { showError(e); }
+  },
   'open-sync': () => { S.modal = 'sync'; renderModal(); },
   'start-sync': () => startSync(),
   'cancel-sync': async () => { await api('sync/cancel', {}).catch(showError); poll(); },

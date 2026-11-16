@@ -160,6 +160,7 @@ func (s *Server) api(w http.ResponseWriter, r *http.Request) {
 		Target   string `json:"target"`
 		// FullBackup defaults to true when omitted.
 		FullBackup *bool `json:"fullBackup"`
+		On         bool  `json:"on"`
 	}
 	// Always read the body: WebKit's custom-scheme requests carry no Content-Length,
 	// so Wails reports ContentLength 0 even when a JSON body is present.
@@ -174,6 +175,8 @@ func (s *Server) api(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/api/settings":
 		err = s.SetLanguage(body.Language)
+	case "/api/settings/prefetch":
+		err = s.SetPrefetchFirmware(body.On)
 	case "/api/library/choose":
 		if s.ChooseDir == nil {
 			fail(w, "no_picker", errors.New("native folder picker unavailable"))
@@ -236,6 +239,7 @@ func (s *Server) state() map[string]any {
 		"worker":         s.Runner.Available(),
 		"native":         s.ChooseDir != nil,
 		"language":       cfg.Language,
+		"prefetch":       cfg.PrefetchFirmware,
 		"systemLanguage": s.systemLanguage,
 		"library":        s.LibraryInfo(),
 		"sync":           s.Sync.Snapshot(),

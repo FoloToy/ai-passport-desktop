@@ -120,6 +120,8 @@ type Manager struct {
 	ready        map[string]bool
 	readyVersion int
 	priority     chan string
+	// prefetch: download every firmware during a sync (stage 2). Off by default.
+	prefetch atomic.Bool
 }
 
 func New(client *Client) *Manager {
@@ -252,6 +254,14 @@ func (m *Manager) Cancel() {
 }
 
 // Start begins a full or incremental sync into root.
+// SetPrefetchFirmware chooses whether the next sync also downloads every play's firmware.
+// When off (the default), a sync fetches only the catalog and images; firmware is fetched
+// on demand with FetchOne and kept for later installs.
+func (m *Manager) SetPrefetchFirmware(on bool) { m.prefetch.Store(on) }
+
+// PrefetchFirmware reports the current choice.
+func (m *Manager) PrefetchFirmware() bool { return m.prefetch.Load() }
+
 func (m *Manager) Start(root string) error {
 	if root == "" {
 		return errors.New(CodeTarget)
@@ -301,10 +311,11 @@ func (m *Manager) run(ctx context.Context, lib library.Library) {
 	before := map[string]*metaFile{}
 	var need int64
 	var queue []*remotePlay
+	prefetch := m.prefetch.Load()
 	for _, p := range valid {
 		mf := readMeta(lib, p.Slug)
 		before[p.Slug] = mf
-		if hasFirmware(p) && !firmwareCurrent(lib, p, mf) {
+		if prefetch && hasFirmware(p) && !firmwareCurrent(lib, p, mf) {
 			need += p.Firmware.Size
 			queue = append(queue, p)
 		}
@@ -331,6 +342,19 @@ func (m *Manager) run(ctx context.Context, lib library.Library) {
 		m.finish("cancelled", "", nil)
 		return
 	}
+	if !prefetch {
+		// Without the firmware stage, count new and changed plays from the catalog.
+		added, updated := 0, 0
+		for _, p := range valid {
+			switch prev := before[p.Slug]; {
+			case prev == nil:
+				added++
+			case prev.Local.RevisionID != p.RevisionID:
+				updated++
+			}
+		}
+		m.set(func(s *State) { s.Added, s.Updated = added, updated })
+	}
 	if err := m.writeIndex(lib, valid, first, topics, recs, len(queue) == 0); err != nil {
 		m.finish("failed", CodeTarget, err)
 		return
@@ -344,7 +368,9 @@ func (m *Manager) run(ctx context.Context, lib library.Library) {
 		s.FirmwareTotal, s.FirmwareDone = len(queue), 0
 		s.BytesTotal = need
 	})
-	m.runFirmwareQueue(ctx, lib, queue, before)
+	if len(queue) > 0 {
+		m.runFirmwareQueue(ctx, lib, queue, before)
+	}
 
 	m.set(func(s *State) { s.Phase = "indexing" })
 	complete := ctx.Err() == nil && m.Snapshot().Failed == 0
