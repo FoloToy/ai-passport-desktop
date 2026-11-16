@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
@@ -61,8 +62,13 @@ func TestLoginPersistsAcrossRestarts(t *testing.T) {
 	if err != nil || r.Status != 200 {
 		t.Fatalf("login: %v %+v", err, r)
 	}
-	if st, _ := os.Stat(filepath.Join(dir, "session.json")); st == nil || st.Mode().Perm() != 0o600 {
-		t.Fatalf("session file must exist with mode 0600: %v", st)
+	st, _ := os.Stat(filepath.Join(dir, "session.json"))
+	if st == nil {
+		t.Fatal("session file must exist")
+	}
+	// Windows has no Unix permission bits; Go reports 0666 there.
+	if runtime.GOOS != "windows" && st.Mode().Perm() != 0o600 {
+		t.Fatalf("session file must have mode 0600, got %v", st.Mode().Perm())
 	}
 	// A new client (app restart) is still signed in.
 	c2, _ := New(srv.URL, "test", dir)
