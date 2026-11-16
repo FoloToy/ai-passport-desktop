@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/FoloToy/ai-passport-desktop/internal/desktop"
+	"github.com/FoloToy/ai-passport-desktop/pkg/account"
 	"github.com/FoloToy/ai-passport-desktop/pkg/device"
 	"github.com/FoloToy/ai-passport-desktop/pkg/esp"
 	"github.com/FoloToy/ai-passport-desktop/pkg/factory"
@@ -64,6 +65,11 @@ func main() {
 	server := desktop.New(version, store, sync, flash, runner)
 	server.Reveal = reveal
 	server.StateDir = dir
+	if acct, err := account.New(*origin, "AIPassportPlays/"+version+" (desktop)", dir); err == nil {
+		server.Account = acct
+	} else {
+		log.Print("account: ", err)
+	}
 	server.CheckUpdatesInBackground()
 
 	if *headless {

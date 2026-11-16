@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/FoloToy/ai-passport-desktop/frontend"
+	"github.com/FoloToy/ai-passport-desktop/pkg/account"
 	"github.com/FoloToy/ai-passport-desktop/pkg/core"
 	"github.com/FoloToy/ai-passport-desktop/pkg/device"
 	"github.com/FoloToy/ai-passport-desktop/pkg/factory"
@@ -36,6 +37,9 @@ type Server struct {
 	Reveal    func(path string) error
 	OpenURL   func(url string) error
 
+	// Account forwards community requests (sign-in, likes, favorites, comments); nil disables them.
+	Account *account.Client
+
 	systemLanguage string
 }
 
@@ -49,7 +53,7 @@ func New(version string, st *settings.Store, sm *syncer.Manager, fm *flasher.Man
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Content-Type-Options", "nosniff")
-	w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'")
+	w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data: https://ai-passport.folotoy.cn https://s.folotoy.cn; object-src 'none'; base-uri 'none'; frame-ancestors 'none'")
 	switch {
 	case strings.HasPrefix(r.URL.Path, "/api/"):
 		w.Header().Set("Cache-Control", "no-store")
@@ -151,6 +155,10 @@ func (s *Server) api(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+	if r.URL.Path == "/api/community" {
+		s.community(w, r)
+		return
+	}
 	var body struct {
 		Language string `json:"language"`
 		Dir      string `json:"dir"`
@@ -220,6 +228,8 @@ func (s *Server) api(w http.ResponseWriter, r *http.Request) {
 		err = s.reveal(body.Target, body.Slug)
 	case "/api/open-web":
 		err = s.openWeb(body.Slug)
+	case "/api/open-site":
+		err = s.openSite(body.Target)
 	default:
 		http.NotFound(w, r)
 		return
@@ -240,6 +250,7 @@ func (s *Server) state() map[string]any {
 		"native":         s.ChooseDir != nil,
 		"language":       cfg.Language,
 		"prefetch":       cfg.PrefetchFirmware,
+		"origin":         s.origin(),
 		"systemLanguage": s.systemLanguage,
 		"library":        s.LibraryInfo(),
 		"sync":           s.Sync.Snapshot(),
@@ -275,4 +286,72 @@ func (s *Server) openWeb(slug string) error {
 		return err
 	}
 	return s.OpenURL(url)
+}
+
+// community forwards one request to the community site through the signed-in account:
+// {"method":"PUT","path":"/api/me/follows/play/42","query":"","body":{...}}. The reply is
+// {"status":200,"data":<the site's JSON>}, so site errors reach the UI with their message.
+func (s *Server) community(w http.ResponseWriter, r *http.Request) {
+	if s.Account == nil {
+		fail(w, "network", errors.New("community account unavailable"))
+		return
+	}
+	var req struct {
+		Method string          `json:"method"`
+		Path   string          `json:"path"`
+		Query  string          `json:"query"`
+		Body   json.RawMessage `json:"body"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		fail(w, "request", err)
+		return
+	}
+	if req.Method == "" {
+		req.Method = http.MethodGet
+	}
+	if !account.Allowed(req.Method, req.Path) {
+		reply(w, http.StatusForbidden, apiError{Code: "request", Message: "request not allowed"})
+		return
+	}
+	var body []byte
+	if len(req.Body) > 0 && string(req.Body) != "null" {
+		body = req.Body
+	} else if req.Method != http.MethodGet {
+		body = []byte("{}")
+	}
+	ctx, cancel := context.WithTimeout(r.Context(), 60*time.Second)
+	defer cancel()
+	resp, err := s.Account.Do(ctx, req.Method, req.Path, req.Query, body)
+	if err != nil {
+		fail(w, "network", err)
+		return
+	}
+	data := json.RawMessage(resp.Body)
+	if !json.Valid(resp.Body) || len(resp.Body) == 0 {
+		b, _ := json.Marshal(map[string]string{"detail": http.StatusText(resp.Status)})
+		data = b
+	}
+	reply(w, 200, map[string]any{"status": resp.Status, "data": data})
+}
+
+func (s *Server) origin() string {
+	if s.Account == nil {
+		return ""
+	}
+	return s.Account.Origin
+}
+
+// sitePages are the only community pages the UI may open in the system browser by name.
+var sitePages = map[string]string{
+	"terms": "/legal/terms/", "privacy": "/legal/privacy/",
+	"terms-en": "/en/legal/terms/", "privacy-en": "/en/legal/privacy/",
+	"account": "/account/",
+}
+
+func (s *Server) openSite(target string) error {
+	p, ok := sitePages[target]
+	if s.OpenURL == nil || !ok || s.Account == nil {
+		return errors.New("not available")
+	}
+	return s.OpenURL(s.Account.Origin + p)
 }

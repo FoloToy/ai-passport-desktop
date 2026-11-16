@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/FoloToy/ai-passport-desktop/pkg/account"
 	"github.com/FoloToy/ai-passport-desktop/pkg/device"
 	"github.com/FoloToy/ai-passport-desktop/pkg/factory"
 	"github.com/FoloToy/ai-passport-desktop/pkg/flasher"
@@ -173,5 +174,39 @@ func TestFirmwareBackupStartsReadOnlyJob(t *testing.T) {
 	}
 	if st := s.Flash.Snapshot(); st.Kind != "backup" {
 		t.Fatalf("unexpected kind %q", st.Kind)
+	}
+}
+
+func TestCommunityForwardsOnlyAllowedRequests(t *testing.T) {
+	site := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/plays/my-play/comments" && r.URL.RawQuery == "sort=default" {
+			_, _ = w.Write([]byte(`{"ok":true,"comments":[]}`))
+			return
+		}
+		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`{"detail":"社区玩法不存在"}`))
+	}))
+	defer site.Close()
+	s, _ := newServer(t)
+	acct, err := account.New(site.URL, "test", t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	s.Account = acct
+	w := do(s, "POST", "/api/community", s.Token, `{"method":"GET","path":"/api/plays/my-play/comments","query":"sort=default"}`)
+	if w.Code != 200 || !strings.Contains(w.Body.String(), `"status":200`) || !strings.Contains(w.Body.String(), `"comments":[]`) {
+		t.Fatalf("comments: %d %s", w.Code, w.Body)
+	}
+	w = do(s, "POST", "/api/community", s.Token, `{"method":"GET","path":"/api/plays/other/comments"}`)
+	if !strings.Contains(w.Body.String(), `"status":404`) || !strings.Contains(w.Body.String(), "社区玩法不存在") {
+		t.Fatalf("site errors must reach the UI: %s", w.Body)
+	}
+	for _, path := range []string{"/api/download/community/x", "/api/admin/users"} {
+		if w := do(s, "POST", "/api/community", s.Token, `{"method":"GET","path":"`+path+`"}`); w.Code != http.StatusForbidden {
+			t.Fatalf("%s must be refused, got %d", path, w.Code)
+		}
+	}
+	if w := do(s, "POST", "/api/community", "wrong", `{"method":"GET","path":"/api/me"}`); w.Code != http.StatusForbidden {
+		t.Fatal("the local token is still required")
 	}
 }

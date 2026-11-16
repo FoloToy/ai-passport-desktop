@@ -26,7 +26,7 @@
 ```
 main.go               启动、命令行参数（-headless -listen -state-dir -origin -self-test）、127.0.0.1 调试服务
 ui_desktop.go         Wails 窗口（macOS / Win10+ / Linux）
-frontend/             index.html app.css app.js（单文件 SPA，含全部中英文案）
+frontend/             index.html app.css app.js（SPA，含全部中英文案）；community.js（登录注册、点赞、收藏、评论、"我的"）
 internal/
   esp/                ESP32-C3 串口协议：SLIP、命令、同步、复位、stub、压缩写、读、MD5、看门狗复位
     stub/             esp32c3.json（esp-flasher-stub v1.4.1，Apache-2.0/MIT）+ 许可证
@@ -34,7 +34,8 @@ internal/
   flasher/            任务管理器：同一时间一个任务、状态快照、取消规则
   factory/            内置出厂固件（4 段）、分段表、身份区保护
   firmware/           玩法镜像校验（0xE9、chip_id 0x0005、大小、SHA-256）
-  syncer/             社区接口、两阶段下载、限流退避
+  syncer/             社区接口、下载玩法信息和图片、按需下载固件、限流退避
+  account/            社区账号：会话 cookie（状态目录 session.json，0600）、CSRF，只转发白名单内的接口
   library/            本地玩法库目录结构
   desktop/            本地 JSON API（/api/*，X-Plays-Token 鉴权）、媒体文件、内嵌界面
   settings/ instance/ 设置文件、单实例锁
@@ -108,6 +109,8 @@ ESP_REAL_BACKUP_DIR=<目录> go test -count=1 -v -run TestRealDeviceBackup ./pkg
 ### 社区接口
 
 - 固件下载接口 `/api/download/...` 按 IP 限流（大约 20–30 次后返回 429，封 30 分钟以上）。测试时不要反复全量下载；列表和图片接口不限流。
+- 所以"更新玩法库"默认只下载玩法信息和图片，固件在第一次刷入时下载并保存。全量下载固件是隐藏设置（`settings.PrefetchFirmware`，在设置页的版本号上连点 5 次显示），默认关闭。
+- 账号相关请求走 `/api/community`，由 `pkg/account` 加上会话和 CSRF 后转发到社区站；新接口要先加进 `account.Allowed` 的白名单。会话文件里有登录凭据，不要提交或贴出来。
 
 ### 许可证
 

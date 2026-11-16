@@ -20,7 +20,7 @@ const I18N = {
     detail_title: '玩法详情', tab_intro: '玩法介绍', tab_usage: '使用说明', tab_changelog: '更新日志',
     nothing_here: '暂无内容', flash_device: '刷入设备', flash_hint: '刷入会覆盖设备上当前的玩法。',
     open_folder: '打开文件夹', open_web: '网页版', firmware: '固件', size: '大小',
-    no_firmware: '该玩法的固件还没有下载，请先更新玩法库。', removed_note: '该玩法已从社区下架，本地仍保留了一份。',
+    no_firmware: '固件还没有下载，第一次刷入时会自动下载并保存，下次不用再下载。', removed_note: '该玩法已从社区下架，本地仍保留了一份。',
     downloads: '下载', hearts: '点赞', favorites: '收藏', comments: '评论',
     // onboarding
     welcome_title: '欢迎使用 AI Passport 玩法社区',
@@ -123,7 +123,7 @@ const I18N = {
     detail_title: 'App details', tab_intro: 'Overview', tab_usage: 'How to use', tab_changelog: 'Changelog',
     nothing_here: 'Nothing here yet', flash_device: 'Install to device', flash_hint: 'Installing replaces the app currently on the device.',
     open_folder: 'Show files', open_web: 'Web page', firmware: 'Firmware', size: 'Size',
-    no_firmware: 'This firmware has not been downloaded yet. Update the library first.', removed_note: 'This app was removed from the community; a local copy is kept.',
+    no_firmware: 'The firmware is not downloaded yet. It is downloaded and kept the first time you install, so later installs need no download.', removed_note: 'This app was removed from the community; a local copy is kept.',
     downloads: 'Downloads', hearts: 'Likes', favorites: 'Saves', comments: 'Comments',
     welcome_title: 'Welcome to the AI Passport App Library',
     welcome_sub: 'First, download the app info and images from the community to this computer; after that you can browse without a network. Firmware is downloaded the first time you install an app and kept, so the next install needs no download.',
@@ -341,6 +341,7 @@ function parseRoute() {
   if (path.startsWith('/play/')) return { name: 'library', play: decodeURIComponent(path.slice(6)), params };
   if (path === '/settings') return { name: 'settings', params };
   if (path === '/restore') return { name: 'restore', params };
+  if (path === '/me') return { name: 'me', params };
   return { name: 'library', params };
 }
 
@@ -373,6 +374,7 @@ function renderTop() {
   $('#topnav').innerHTML = `
     <a href="${libraryHash()}" class="${r.name === 'library' ? 'active' : ''}">${t('nav_library')}</a>
     <a href="#/restore" class="${r.name === 'restore' ? 'active' : ''}">${t('nav_restore')}</a>
+    <a href="#/me" class="${r.name === 'me' ? 'active' : ''}">${t('nav_me')}</a>
     <a href="#/settings" class="${r.name === 'settings' ? 'active' : ''}">${t('nav_settings')}</a>`;
   renderTopRight();
 }
@@ -390,7 +392,7 @@ function renderTopRight() {
   } else if (st.update.available && st.library.hasIndex) {
     pill = `<button class="pill amber" data-action="start-sync"><span class="dot"></span>${t('update_available')} · ${t('update_now')}</button>`;
   }
-  $('#topright').innerHTML = `${pill}<button class="lang-toggle" data-action="toggle-lang" title="Language">${lang === 'zh' ? 'EN' : '中文'}</button>`;
+  $('#topright').innerHTML = `${pill}${accountButton()}<button class="lang-toggle" data-action="toggle-lang" title="Language">${lang === 'zh' ? 'EN' : '中文'}</button>`;
   applyWidths($('#topright'));
 }
 
@@ -412,6 +414,8 @@ function render() {
     app.innerHTML = renderSettings();
   } else if (r.name === 'restore') {
     app.innerHTML = renderRestore();
+  } else if (r.name === 'me') {
+    app.innerHTML = renderMe();
   } else if (!lib.hasIndex || !S.catalog) {
     app.innerHTML = S.server.sync.running ? `<div class="center-page"><div class="welcome sync-card" id="sync-inline">${syncBody()}</div></div>` : renderWelcome();
   } else {
@@ -652,6 +656,8 @@ function renderDetail() {
   const images = p.gallery.length ? p.gallery : [p.cover || p.thumb].filter(Boolean);
   const idx = Math.min(S.detail.img, Math.max(0, images.length - 1));
   const tabBody = { intro: pick(p.description), usage: pick(p.instructions), changelog: pick(p.changelog) }[S.detail.tab];
+  if (!C.eng[p.slug]) queueMicrotask(() => loadEngagement(p));
+  if (S.detail.tab === 'comments' && !C.comments[p.slug]) queueMicrotask(() => loadComments(p.slug));
   const reveal = S.server.platform === 'windows' ? t('reveal_win') : t('open_folder');
   return `<div class="overlay" data-action="overlay"><div class="modal" role="dialog" aria-modal="true">
     <div class="modal-head"><h2>${t('detail_title')}</h2><button class="close" data-action="close-detail" aria-label="close">${ICON.close}</button></div>
@@ -673,12 +679,12 @@ function renderDetail() {
           </div>
           <p class="hint">${p.removed ? t('removed_note') : p.ready ? t('flash_hint') : t('no_firmware')}</p>
           <hr>
-          <div class="stats"><span>${ICON.heart}${fmtNum(p.hearts)}</span><span>${ICON.bookmark}${fmtNum(p.favorites)}</span><span>${ICON.chat}${fmtNum(p.comments)}</span><span>${ICON.download}${fmtNum(p.downloads)}</span></div>
+          <div class="stats" data-eng>${engagementButtons(p)}</div>
           <div class="sp8"></div>
           <div class="fw-meta">${t('firmware')} · ${fmtBytes(p.firmware.size)} · SHA-256 ${esc((p.firmware.sha256 || '').slice(0, 16))}… · ${esc(categoryName(p.category))}</div>
         </div>
-        <div class="tabs detail-tabs">${['intro', 'usage', 'changelog'].map(k => `<button class="${S.detail.tab === k ? 'active' : ''}" data-action="detail-tab" data-tab="${k}">${t('tab_' + k)}</button>`).join('')}</div>
-        <div class="prose">${prose(tabBody)}</div>
+        <div class="tabs detail-tabs">${['intro', 'usage', 'changelog', 'comments'].map(k => `<button class="${S.detail.tab === k ? 'active' : ''}" data-action="detail-tab" data-tab="${k}">${t('tab_' + k)}${k === 'comments' && p.comments ? `<small>${fmtNum(p.comments)}</small>` : ''}</button>`).join('')}</div>
+        ${S.detail.tab === 'comments' ? commentsBody(p.slug) : `<div class="prose">${prose(tabBody)}</div>`}
       </div>
     </div></div>
   </div></div>`;
@@ -971,7 +977,7 @@ function renderModal() {
     return;
   }
   if (!S.modal) { root.innerHTML = ''; return; }
-  const titles = { sync: S.server.sync.kind === 'move' ? t('move_title') : t('sync_title'), flash: t('flash_title'), move: t('move_title') };
+  const titles = { sync: S.server.sync.kind === 'move' ? t('move_title') : t('sync_title'), flash: t('flash_title'), move: t('move_title'), account: t('login_title') };
   root.innerHTML = `<div class="overlay"><div class="modal narrow" role="dialog" aria-modal="true">
     <div class="modal-head"><h2>${titles[S.modal]}</h2>${canClose() ? `<button class="close" data-action="close-modal" aria-label="close">${ICON.close}</button>` : ''}</div>
     <div class="modal-body sync-card" id="modal-body"></div></div></div>`;
@@ -990,6 +996,7 @@ function updateModal() {
   const wasOpen = open && open.open;
   const pre = body.querySelector('details.log pre');
   const atBottom = pre ? pre.scrollTop + pre.clientHeight >= pre.scrollHeight - 8 : true;
+  if (S.modal === 'account') { body.innerHTML = accountBody(); return; }
   body.innerHTML = S.modal === 'sync' ? syncBody() : S.modal === 'flash' ? flashBody() : moveBody();
   applyWidths(body);
   const nd = body.querySelector('details.log');
@@ -1307,6 +1314,7 @@ async function poll(forceRender) {
     if (p && st.fetch.slug === p.slug && st.fetch.done && !p.ready) { p.ready = true; refreshReady(); }
     if (p && p.ready && !S.flash.scanTimer && st.flash.stage === 'idle') startPortScan();
   }
+  if (prev && prev.flash.stage !== 'done' && st.flash.stage === 'done' && S.flash.slug) recordInstall(S.flash.slug);
   const syncFinished = lastSyncRunning && !st.sync.running;
   lastSyncRunning = st.sync.running;
   const r = parseRoute();

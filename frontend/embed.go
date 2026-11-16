@@ -3,5 +3,5 @@ package frontend
 
 import "embed"
 
-//go:embed index.html app.css app.js logo.svg
+//go:embed index.html app.css app.js community.js logo.svg
 var Files embed.FS
