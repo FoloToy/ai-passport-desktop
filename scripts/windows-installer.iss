@@ -5,7 +5,7 @@
   #error OutputDir is required
 #endif
 #ifndef AppVersion
-  #define AppVersion "0.5.1"
+  #define AppVersion "0.6.0"
 #endif
 #define AppTitle "AI Passport 玩法社区"
 #define ExeName "AIPassportPlays.exe"
