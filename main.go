@@ -70,11 +70,10 @@ func main() {
 	} else {
 		log.Print("account: ", err)
 	}
-	server.CheckUpdatesInBackground()
-
 	if *headless {
 		serveLoopback(server, *address, sync, func(url string) { fmt.Println(appTitle + " " + version + " " + url) })
 		<-interrupted()
+		_ = server.FlushIndex()
 		return
 	}
 

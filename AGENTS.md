@@ -4,7 +4,7 @@
 
 ## 项目是什么
 
-**AI Passport 玩法社区（离线桌面版）**：把 https://ai-passport.folotoy.cn/plays/ 的玩法全部下载到本地，离线浏览，并把玩法固件刷进 AI Passport（ESP32-C3，8 MB Flash）。另外有"设备工具"：备份固件（只读）和恢复出厂固件。
+**AI Passport 玩法社区（桌面版）**：像网站一样按页浏览 https://ai-passport.folotoy.cn/plays/ 的玩法（看过的玩法、图片和固件保存在本地，离线也能用），并把玩法固件安装到 AI Passport（ESP32-C3，8 MB Flash）。界面上统一叫"安装"，不叫"刷入/刷机"（代码里的 `flash` 标识符不变）。另外有"设备工具"：备份固件（只读）和恢复出厂固件。
 
 - 仓库：`FoloToy/ai-passport-desktop`（公开，MIT 许可证，见 `LICENSE`），默认分支 `main`，PR 也提到 `main`。
 - 平台：macOS（arm64 / x86_64 / universal）、Windows 10/11 x64、Linux（amd64 / arm64，Ubuntu 22.04+ / Debian 12+，`.deb` 和 `.tar.gz`）。
@@ -34,7 +34,7 @@ internal/
   flasher/            任务管理器：同一时间一个任务、状态快照、取消规则
   factory/            内置出厂固件（4 段）、分段表、身份区保护
   firmware/           玩法镜像校验（0xE9、chip_id 0x0005、大小、SHA-256）
-  syncer/             社区接口、下载玩法信息和图片、按需下载固件、限流退避
+  syncer/             社区接口、按页浏览（browse.go）、按需下载图片和固件、完整下载、限流退避
   account/            社区账号：会话 cookie（状态目录 session.json，0600）、CSRF，只转发白名单内的接口
   library/            本地玩法库目录结构
   desktop/            本地 JSON API（/api/*，X-Plays-Token 鉴权）、媒体文件、内嵌界面
@@ -109,7 +109,9 @@ ESP_REAL_BACKUP_DIR=<目录> go test -count=1 -v -run TestRealDeviceBackup ./pkg
 ### 社区接口
 
 - 固件下载接口 `/api/download/...` 按 IP 限流（大约 20–30 次后返回 429，封 30 分钟以上）。测试时不要反复全量下载；列表和图片接口不限流。
-- 所以"更新玩法库"默认只下载玩法信息和图片，固件在第一次刷入时下载并保存。全量下载固件是隐藏设置（`settings.PrefetchFirmware`，在设置页的版本号上连点 5 次显示），默认关闭。
+- 玩法库按需加载：`/api/home`（精选、分类、专题数量）和 `/api/browse`（一页玩法，搜索/分类/专题/排序都用社区 `/api/plays` 的参数）只写 `meta.json` 和 `index.json`，不下载图片；图片由 `/media/` 在第一次显示时下载（`syncer.FetchAsset`）。不要加回启动时或打开时的批量预取。
+- 固件在第一次安装时下载并保存。"下载完整玩法库"和"同时下载全部固件"是隐藏设置（在设置页的版本号上连点 5 次显示；`settings.PrefetchFirmware` 默认关闭）。
+- **每个固件请求都必须带 `X-AI-Passport-Download-Purpose`**：用户安装时 `flash`，其他（批量、后台）`sync`。社区只统计 `flash`，并且忽略 AIPassportPlays ≤ 0.5 的下载。`Client.open` 对 `/api/download/` 缺省用 `sync`；新增的下载路径要明确传用途，并在测试里断言。
 - 账号相关请求走 `/api/community`，由 `pkg/account` 加上会话和 CSRF 后转发到社区站；新接口要先加进 `account.Allowed` 的白名单。会话文件里有登录凭据，不要提交或贴出来。
 
 ### 许可证

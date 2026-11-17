@@ -69,7 +69,7 @@ func (m *Manager) syncCatalog(ctx context.Context, lib library.Library, p *remot
 			got[name] = ref
 			continue
 		}
-		if err := m.download(ctx, lib, ref, dest, 20<<20, nil, true); err == nil {
+		if err := m.download(ctx, lib, ref, dest, 20<<20, nil, true, ""); err == nil {
 			got[name] = ref
 		}
 	}
@@ -107,7 +107,7 @@ func (m *Manager) ensureAvatar(ctx context.Context, lib library.Library, ref str
 		<-v.(chan struct{})
 	} else {
 		if fileSize(dest) <= 0 {
-			_ = m.download(ctx, lib, ref, dest, 5<<20, nil, true)
+			_ = m.download(ctx, lib, ref, dest, 5<<20, nil, true, "")
 		}
 		close(done)
 	}
@@ -133,42 +133,46 @@ type permanent struct{ error }
 
 // download fetches ref into a temp file, runs check, then atomically moves it to dest.
 // With retry429 false a rate-limit response is returned to the caller immediately.
-func (m *Manager) download(ctx context.Context, lib library.Library, ref, dest string, limit int64, check func(string) error, retry429 bool) error {
-	return retryLoop(ctx, retry429, func() error {
-		resp, err := m.Client.open(ctx, ref)
-		if err != nil {
+// purpose is sent with firmware downloads (PurposeFlash or PurposeSync).
+func (m *Manager) download(ctx context.Context, lib library.Library, ref, dest string, limit int64, check func(string) error, retry429 bool, purpose string) error {
+	return retryLoop(ctx, retry429, func() error { return m.downloadOnce(ctx, lib, ref, dest, limit, check, purpose) })
+}
+
+// downloadOnce is one attempt of download.
+func (m *Manager) downloadOnce(ctx context.Context, lib library.Library, ref, dest string, limit int64, check func(string) error, purpose string) error {
+	resp, err := m.Client.open(ctx, ref, purpose)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if err := os.MkdirAll(lib.TempDir(), 0o755); err != nil {
+		return err
+	}
+	f, err := os.CreateTemp(lib.TempDir(), "dl-*")
+	if err != nil {
+		return err
+	}
+	tmp := f.Name()
+	defer os.Remove(tmp)
+	n, err := io.Copy(f, countingReader{io.LimitReader(resp.Body, limit+1), &m.bytes})
+	if cerr := f.Close(); err == nil {
+		err = cerr
+	}
+	if err != nil {
+		return err
+	}
+	if n > limit {
+		return &permanent{errors.New("file too large")}
+	}
+	if check != nil {
+		if err := check(tmp); err != nil {
 			return err
 		}
-		defer resp.Body.Close()
-		if err := os.MkdirAll(lib.TempDir(), 0o755); err != nil {
-			return err
-		}
-		f, err := os.CreateTemp(lib.TempDir(), "dl-*")
-		if err != nil {
-			return err
-		}
-		tmp := f.Name()
-		defer os.Remove(tmp)
-		n, err := io.Copy(f, countingReader{io.LimitReader(resp.Body, limit+1), &m.bytes})
-		if cerr := f.Close(); err == nil {
-			err = cerr
-		}
-		if err != nil {
-			return err
-		}
-		if n > limit {
-			return &permanent{errors.New("file too large")}
-		}
-		if check != nil {
-			if err := check(tmp); err != nil {
-				return err
-			}
-		}
-		if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
-			return err
-		}
-		return os.Rename(tmp, dest)
-	})
+	}
+	if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
+		return err
+	}
+	return os.Rename(tmp, dest)
 }
 
 func normalize(p *remotePlay, local localState, slugDir string) library.Play {
@@ -193,9 +197,14 @@ func normalize(p *remotePlay, local localState, slugDir string) library.Play {
 			out.Author.Name = a.Name
 		}
 	}
+	if out.Author.Avatar == "" && p.AuthorProfile != nil && p.AuthorProfile.AvatarURL != "" {
+		out.Author.Avatar = avatarPath(p.AuthorProfile.AvatarURL)
+	}
+	// Image paths point into the library whether or not the file is there yet: the
+	// local media handler downloads a missing image the first time it is shown.
 	base := "plays/" + p.Slug + "/"
 	var gallery []string
-	for name := range local.Assets {
+	for name := range wantedAssets(p) {
 		switch {
 		case strings.HasPrefix(name, "cover."):
 			out.Cover = base + name

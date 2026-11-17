@@ -78,10 +78,13 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// media serves a library image. An image that has not been downloaded yet is fetched
+// from the community first (images are downloaded only when the UI shows them).
 func (s *Server) media(w http.ResponseWriter, r *http.Request) {
-	lib := s.Library()
-	p, ok := lib.Resolve(strings.TrimPrefix(r.URL.Path, "/media/"))
-	if !ok || lib.Root == "" {
+	ctx, cancel := context.WithTimeout(r.Context(), 60*time.Second)
+	defer cancel()
+	p, err := s.MediaFile(ctx, strings.TrimPrefix(r.URL.Path, "/media/"))
+	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
@@ -128,6 +131,35 @@ func (s *Server) api(w http.ResponseWriter, r *http.Request) {
 			}
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			_, _ = w.Write(b)
+		case "/api/home":
+			ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
+			defer cancel()
+			home, err := s.Home(ctx)
+			if err != nil {
+				fail(w, core.Code(err), err)
+				return
+			}
+			reply(w, 200, home)
+		case "/api/browse":
+			ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
+			defer cancel()
+			v := r.URL.Query()
+			offset, _ := strconv.Atoi(v.Get("offset"))
+			limit, _ := strconv.Atoi(v.Get("limit"))
+			page, err := s.Browse(ctx, syncer.Query{Category: v.Get("category"), Tag: v.Get("tag"), Search: v.Get("q"),
+				Sort: v.Get("sort"), Offset: offset, Limit: limit})
+			if err != nil {
+				fail(w, core.Code(err), err)
+				return
+			}
+			reply(w, 200, page)
+		case "/api/play":
+			p, err := s.CachedPlay(r.URL.Query().Get("slug"))
+			if err != nil {
+				reply(w, 404, apiError{Code: core.Code(err), Message: err.Error()})
+				return
+			}
+			reply(w, 200, p)
 		case "/api/ports":
 			ctx, cancel := context.WithTimeout(r.Context(), 20*time.Second)
 			defer cancel()
