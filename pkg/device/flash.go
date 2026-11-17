@@ -140,6 +140,14 @@ func flashImage(ctx context.Context, connect Connector, req Request, on func(Eve
 		return coded("flash_size", "Flash size %s is smaller than the 8 MB AI Passport flash", orUnknown(esp.SizeName(size)))
 	}
 	on(Event{Type: "identified", Chip: chip, MAC: mac, Flash: esp.SizeName(size)})
+	if req.ExpectMAC != "" {
+		if compactMAC(mac) != compactMAC(req.ExpectMAC) {
+			return coded("wrong_device", "This backup belongs to %s, but the connected device is %s", req.ExpectMAC, mac)
+		}
+		if len(data) != size {
+			return coded("image", "The backup is %d bytes but the device flash is %d bytes", len(data), size)
+		}
+	}
 	backupCardID(d, data, mac, req.BackupDir, on)
 
 	on(Event{Type: "stage", Stage: "writing"})
@@ -220,4 +228,9 @@ func clip(s string) string {
 		return s[:2000]
 	}
 	return s
+}
+
+// compactMAC lowercases a MAC and drops separators.
+func compactMAC(mac string) string {
+	return strings.ToLower(strings.NewReplacer(":", "", "-", "").Replace(mac))
 }

@@ -17,10 +17,6 @@ type Settings struct {
 	Language string `json:"language"`
 	// BackupDir keeps factory-restore backups and identity-area copies. Empty means DefaultBackupDir.
 	BackupDir string `json:"backupDir,omitempty"`
-	// PrefetchFirmware makes "update" download every play's firmware too. Off by default:
-	// firmware is downloaded (and kept) the first time a play is installed. The switch is a
-	// hidden setting, because the community's firmware endpoint is rate-limited.
-	PrefetchFirmware bool `json:"prefetchFirmware,omitempty"`
 }
 
 // DefaultBackupDir matches the standalone factory restore tool, so earlier backups stay together.

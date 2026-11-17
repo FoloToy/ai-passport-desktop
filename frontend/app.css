@@ -424,3 +424,64 @@ button.link { background: none; border: 0; padding: 0; color: var(--green); font
 .me-item img, .me-item > span { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; background: #1a1b1e; flex: none; }
 .me-item b { flex: 1; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .me-item small { color: var(--muted-2); font-size: 12px; }
+
+/* ---------- login (same layout as the Android app) ---------- */
+.login-hero { margin: 0; font-size: 20px; line-height: 1.4; }
+.login-hero em { font-style: normal; color: var(--green); display: block; }
+.login .segmented.wide { align-self: stretch; display: flex; }
+.login .segmented.wide button { flex: 1; }
+.login .lbl { font-size: 12.5px; color: var(--muted); margin-bottom: -6px; }
+.login .check.small { font-size: 12.5px; }
+.phone-row { display: flex; gap: 8px; }
+.phone-row .field { flex: 1; }
+.cc-btn { flex: none; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: #0d0e10; color: var(--text); font: inherit; cursor: pointer; }
+.cc-picker .cc-head { display: flex; align-items: center; gap: 10px; }
+.cc-list { max-height: 360px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; }
+.cc-group { position: sticky; top: 0; padding: 4px 12px; font-size: 12px; font-weight: 700; color: var(--muted); background: var(--panel-2); }
+.cc-row { display: flex; justify-content: space-between; width: 100%; padding: 9px 12px; border: 0; border-bottom: 1px solid var(--line); background: none; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.cc-row:hover, .cc-row.on { background: var(--green-bg); }
+.cc-row b { color: var(--muted); font-weight: 500; }
+
+/* ---------- list rows (Tools, Me) ---------- */
+.list-card { padding: 14px 8px 8px; }
+.list-card > h2, .list-card > p { padding: 0 14px; }
+.list-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border: 0; border-radius: 12px; background: none; color: var(--text); font: inherit; text-align: left; text-decoration: none; cursor: pointer; }
+.list-row:hover { background: var(--panel-2); }
+.list-row.static { cursor: default; }
+.list-row.static:hover { background: none; }
+.list-row.off { cursor: default; opacity: 0.6; }
+.list-row.off:hover { background: none; }
+.list-row > span:first-child { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.list-row small { color: var(--muted); font-size: 12.5px; }
+.list-row > small { flex: 1; text-align: right; }
+.list-row i { font-style: normal; color: var(--muted-2); font-size: 16px; }
+.list-row.danger { color: var(--red); }
+.badge { min-width: 20px; padding: 0 6px; border-radius: 999px; background: var(--red); color: #fff; font-size: 12px; text-align: center; }
+.pill-s { display: inline-flex; align-items: center; padding: 1px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; vertical-align: middle; white-space: nowrap; }
+.pill-s.green { background: var(--green-bg); color: var(--green); }
+.pill-s.amber { background: rgba(245, 183, 66, 0.12); color: var(--amber); }
+.pill-s.grey { background: var(--panel-3); color: var(--muted); }
+.pill-s.purple { background: rgba(167, 139, 250, 0.14); color: #b9a4ff; }
+.usb-card { padding: 4px 0; }
+.usb-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.usb-card p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.panel.help summary { cursor: pointer; font-weight: 600; }
+.panel.help ul { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+.backup-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.backup-row:last-child { border-bottom: 0; }
+.backup-row > div:first-child { display: flex; flex-direction: column; min-width: 0; }
+.backup-row small { color: var(--muted); font-size: 12.5px; }
+.backup-row .buttons { margin-top: 0; flex: none; }
+.danger-text { color: var(--red); }
+.me-head { display: flex; align-items: center; gap: 16px; }
+.me-head > div { flex: 1; }
+.me-head h2 { margin: 0; }
+.me-head p { margin: 2px 0 0; color: var(--muted); }
+.me-signin h2 { margin: 0 0 6px; }
+.me-list-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.msg-list { display: flex; flex-direction: column; gap: 10px; }
+.msg { padding: 14px 16px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); }
+.msg.unread { border-color: var(--green-line); cursor: pointer; }
+.msg > div { display: flex; justify-content: space-between; gap: 12px; }
+.msg small { color: var(--muted); }
+.msg p { margin: 6px 0 0; color: var(--muted); font-size: 13px; white-space: pre-wrap; }

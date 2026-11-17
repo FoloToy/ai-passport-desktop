@@ -59,7 +59,7 @@ const I18N = {
     settings_title: '设置', s_library: '玩法存储目录', s_library_sub: '玩法、图片和固件都保存在这里。',
     change_dir: '更改目录', reveal: '在访达中打开', reveal_win: '在资源管理器中打开', usage: '已占用', files: '文件数', free: '可用空间',
     s_data: '玩法数据', s_data_sub: '从 AI Passport 玩法社区下载最新的玩法。固件在刷入时按需下载，并保存在玩法目录里。',
-    s_advanced: '高级', s_prefetch: '更新玩法库时下载全部固件', s_prefetch_sub: '默认关闭。打开后，“立即更新”会把所有玩法的固件都下载下来（约 3 GB）。固件服务器有下载频率限制，大量下载时会被暂停。只在需要完全离线刷机时打开。', advanced_on: '已显示高级设置', advanced_off: '已隐藏高级设置', on: '开', off: '关', last_sync: '上次更新',
+    last_sync: '上次更新',
     never: '从未更新', plays_ready: '已下载固件', check_update: '检查更新', checking: '正在检查…',
     up_to_date: '已是最新', status: '状态', complete: '完整', incomplete: '未完成',
     s_language: '语言', lang_auto: '跟随系统', s_about: '关于', version: '版本', worker: '刷机组件',
@@ -158,7 +158,7 @@ const I18N = {
     settings_title: 'Settings', s_library: 'Library folder', s_library_sub: 'Apps, images and firmware are stored here.',
     change_dir: 'Change folder', reveal: 'Show in Finder', reveal_win: 'Show in Explorer', usage: 'Used', files: 'Files', free: 'Free space',
     s_data: 'App data', s_data_sub: 'Download the latest apps from the AI Passport community. Firmware is downloaded when you install an app and kept in the library folder.',
-    s_advanced: 'Advanced', s_prefetch: 'Download all firmware when updating', s_prefetch_sub: 'Off by default. When on, "Update now" downloads the firmware of every app (about 3 GB). The firmware server limits how often you can download, so a large download gets paused. Turn this on only if you need to install apps fully offline.', advanced_on: 'Advanced settings shown', advanced_off: 'Advanced settings hidden', on: 'On', off: 'Off', last_sync: 'Last update',
+    last_sync: 'Last update',
     never: 'Never', plays_ready: 'Firmware downloaded', check_update: 'Check for updates', checking: 'Checking…',
     up_to_date: 'Up to date', status: 'Status', complete: 'Complete', incomplete: 'Incomplete',
     s_language: 'Language', lang_auto: 'System', s_about: 'About', version: 'Version', worker: 'Flashing component',
@@ -301,7 +301,7 @@ const S = {
   limit: 60,
   detail: { slug: null, img: 0, tab: 'intro' },
   modal: null, // 'sync' | 'flash' | 'move'
-  flash: { slug: null, ports: null, port: '', scanning: false, scanTimer: null },
+  flash: { mode: 'play', slug: null, path: '', label: '', agree: false, ports: null, port: '', scanning: false, scanTimer: null },
   pendingDir: '',
   checking: false,
   advanced: localStorage.getItem('plays-advanced') === '1',
@@ -340,8 +340,10 @@ function parseRoute() {
   const params = new URLSearchParams(query || '');
   if (path.startsWith('/play/')) return { name: 'library', play: decodeURIComponent(path.slice(6)), params };
   if (path === '/settings') return { name: 'settings', params };
-  if (path === '/restore') return { name: 'restore', params };
-  if (path === '/me') return { name: 'me', params };
+  if (path === '/device') return { name: 'device', params };
+  if (path === '/restore') return { name: 'tools', tool: 'restore', params };
+  if (path === '/tools' || path.startsWith('/tools/')) return { name: 'tools', tool: path.slice(7), params };
+  if (path === '/me' || path.startsWith('/me/')) return { name: 'me', list: path.slice(4), params };
   return { name: 'library', params };
 }
 
@@ -361,7 +363,10 @@ function applyRoute() {
     if (!r.play) {
       S.view = { cat: r.params.get('cat') || 'all', tab: r.params.get('tab') || 'all', q: r.params.get('q') || '', sort: r.params.get('sort') || 'newest' };
     }
-    if (r.play !== S.detail.slug) S.detail = { slug: r.play || null, img: 0, tab: 'intro' };
+    if (r.play !== S.detail.slug) {
+      S.detail = { slug: r.play || null, img: 0, tab: 'intro' };
+      if (r.play && S.bySlug.get(r.play)) recordView(S.bySlug.get(r.play));
+    }
   } else {
     S.detail.slug = null;
   }
@@ -372,10 +377,10 @@ function applyRoute() {
 function renderTop() {
   const r = parseRoute();
   $('#topnav').innerHTML = `
-    <a href="${libraryHash()}" class="${r.name === 'library' ? 'active' : ''}">${t('nav_library')}</a>
-    <a href="#/restore" class="${r.name === 'restore' ? 'active' : ''}">${t('nav_restore')}</a>
-    <a href="#/me" class="${r.name === 'me' ? 'active' : ''}">${t('nav_me')}</a>
-    <a href="#/settings" class="${r.name === 'settings' ? 'active' : ''}">${t('nav_settings')}</a>`;
+    <a href="#/device" class="${r.name === 'device' ? 'active' : ''}">${t('nav_device')}</a>
+    <a href="${libraryHash()}" class="${r.name === 'library' ? 'active' : ''}">${t('nav_plays')}</a>
+    <a href="#/tools" class="${r.name === 'tools' ? 'active' : ''}">${t('nav_tools')}</a>
+    <a href="#/me" class="${r.name === 'me' || r.name === 'settings' ? 'active' : ''}">${t('nav_me')}</a>`;
   renderTopRight();
 }
 
@@ -412,8 +417,10 @@ function render() {
   const app = $('#app');
   if (r.name === 'settings') {
     app.innerHTML = renderSettings();
-  } else if (r.name === 'restore') {
-    app.innerHTML = renderRestore();
+  } else if (r.name === 'device') {
+    app.innerHTML = renderDevice();
+  } else if (r.name === 'tools') {
+    app.innerHTML = renderTools();
   } else if (r.name === 'me') {
     app.innerHTML = renderMe();
   } else if (!lib.hasIndex || !S.catalog) {
@@ -428,6 +435,7 @@ function render() {
   applyWidths(app);
   renderModal();
   if (r.name === 'settings') refreshUsage();
+  watchUsb(r.name === 'device' || r.name === 'tools');
 }
 
 /* ---------------- welcome ---------------- */
@@ -529,14 +537,19 @@ function renderLibrary() {
   </section></div>`;
 }
 
-function renderFeatured() {
-  let ids = S.catalog.recommendations || [];
+/** The featured row: the site's recommendations, topped up from "must play". */
+function featuredPlays() {
+  const ids = S.catalog.recommendations || [];
   let plays = ids.map(id => S.byId.get(id)).filter(p => p && !p.removed);
   if (plays.length < 4) {
     const must = topicsList().find(x => x.key === 'must-play');
     if (must) plays = plays.concat(must.ids.map(id => S.byId.get(id)).filter(p => p && !p.removed && !plays.includes(p)));
   }
-  plays = plays.slice(0, 12);
+  return plays.slice(0, 12);
+}
+
+function renderFeatured() {
+  const plays = featuredPlays();
   if (!plays.length) return '';
   return `<section class="featured">
     <div class="section-title"><div><div class="section-kicker">${t('featured_kicker')}</div><h2>${t('featured')}</h2></div></div>
@@ -747,8 +760,9 @@ function requestFetch(slug) {
 
 function flashBody() {
   const f = S.server.flash;
-  const p = S.bySlug.get(S.flash.slug);
-  const title = p ? esc(pick(p.title)) : '';
+  const mode = S.flash.mode || 'play';
+  const p = mode === 'play' ? S.bySlug.get(S.flash.slug) : null;
+  const title = p ? esc(pick(p.title)) : esc(S.flash.label || '');
   if (p && !p.ready && (f.stage === 'idle' || f.slug !== S.flash.slug)) return fetchBody(p);
   if (f.stage === 'idle' || f.slug !== S.flash.slug) {
     const ports = S.flash.ports;
@@ -756,12 +770,16 @@ function flashBody() {
     if (ports === null) list = `<div class="searching"><span class="spinner"></span>${t('searching')}</div>`;
     else if (!ports.length) list = `<div class="searching">${t('no_ports')}</div>`;
     else list = (ports.some(pt => pt.recommended) ? '' : `<div class="notice">${t('no_passport')}</div>`) + ports.map(pt => `<label class="port ${S.flash.port === pt.path ? 'selected' : ''}"><input type="radio" name="port" value="${esc(pt.path)}" ${S.flash.port === pt.path ? 'checked' : ''} data-action="pick-port"><span><b>${esc(pt.recommended ? t('port_recommended') : pt.label)}</b><small>${esc(pt.path)} · ${pt.vid.toString(16).padStart(4, '0')}:${pt.pid.toString(16).padStart(4, '0')}</small></span>${pt.recommended ? `<span class="chip">ESP32-C3</span>` : '<span></span>'}</label>`).join('');
+    const ready = S.flash.port && S.flash.agree && (mode !== 'file' || S.flash.path || !S.server.native);
+    const installer = p && p.slug === S.server.installer ? `<div class="notice">${t('installer_warn')}</div>` : '';
     return `<div class="steps"><span class="on"></span><span></span><span></span></div>
-      <p class="m-title"><b>${title}</b></p>
+      ${mode === 'play' ? `<p class="m-title"><b>${title}</b></p>` : flashTargetHead()}
+      ${installer}
       <p class="m-sub">${t('step_connect')}</p>
       <div class="ports">${list}</div>
+      <label class="check mt10"><input type="checkbox" data-action="flash-agree" ${S.flash.agree ? 'checked' : ''}> ${t(mode === 'backup' ? 'flash_agree_backup' : 'flash_agree')}</label>
       <div class="notice">${t('flash_warn')}</div>
-      <div class="modal-foot inline"><button class="btn ghost" data-action="scan-ports">${t('refresh')}</button><button class="btn" data-action="close-modal">${t('cancel')}</button><button class="btn primary" data-action="start-flash" ${S.flash.port ? '' : 'disabled'}>${t('start_flash')}</button></div>`;
+      <div class="modal-foot inline"><button class="btn ghost" data-action="scan-ports">${t('refresh')}</button><button class="btn" data-action="close-modal">${t('cancel')}</button><button class="btn primary" data-action="start-flash" ${ready ? '' : 'disabled'}>${t('start_flash')}</button></div>`;
   }
   const logs = f.logs && f.logs.length ? `<details class="log"><summary>${t('log')}</summary><pre>${esc(f.logs.join('\n'))}</pre></details>` : '';
   const info = f.chip ? `<dl class="kv"><dt>${t('chip')}</dt><dd>${esc(f.chip)}</dd><dt>${t('mac')}</dt><dd>${esc(f.mac)}</dd><dt>${t('flash_size')}</dt><dd>${esc(f.flash)}</dd></dl>` : '';
@@ -773,7 +791,7 @@ function flashBody() {
   if (f.stage === 'failed') {
     return `<div class="steps"><span class="on"></span><span class="on"></span><span></span></div>
       <div class="result fail"><div class="icon">!</div><h3>${t('flash_failed')}</h3><p>${esc(errText(f.errorCode, f.error))}</p></div>${info}${cardidNote(f)}${logs}
-      <p class="center-note"><a href="#/restore" data-action="go-restore">${t('restore_link')}</a></p>
+      <p class="center-note"><a href="#/tools/restore" data-action="go-restore">${t('restore_link')}</a></p>
       <div class="modal-foot inline"><button class="btn" data-action="close-modal">${t('close')}</button><button class="btn primary" data-action="flash-retry">${t('retry')}</button></div>`;
   }
   const pct = f.stage === 'writing' || f.stage === 'verifying' ? f.percent : f.stage === 'resetting' ? 100 : 0;
@@ -796,29 +814,6 @@ const RESTORE_STAGES = ['preparing', 'waiting', 'connecting', 'checking', 'backu
 function restoreState() {
   const f = S.server.flash;
   return f && f.kind === 'restore' ? f : { stage: 'idle', logs: [] };
-}
-
-function renderRestore() {
-  const st = S.server;
-  const r = st.restore || {};
-  const busy = st.flash.active;
-  return `<div class="settings restore">
-    <h1>${t('tools_title')}</h1>
-    <p class="lead">${t('tools_lead')}</p>
-    
-    <section class="panel"><h2>${t('backup_title')}</h2><p>${t('backup_lead')}</p><div id="backup-main">${backupMain()}</div></section>
-    <section class="panel"><h2>${t('restore_title')}</h2><p>${t('restore_lead')}</p><div id="restore-main">${restoreMain()}</div></section>
-    <section class="panel">
-      <h2>${t('r_options')}</h2><p>${t('r_safety')}</p>
-      <dl class="kv"><dt>${t('r_backup_dir')}</dt><dd class="ellipsis" title="${esc(r.backupDir || '')}">${esc(r.backupDir || '—')}</dd><dt>${t('r_fw')}</dt><dd>${esc(r.firmware || '')}</dd></dl>
-      ${st.native ? '' : `<div class="folder mt10">${ICON.folder}<input id="backup-input" value="${esc(r.backupDir || '')}" spellcheck="false"></div>`}
-      <label class="check mt10"><input type="checkbox" id="restore-full" ${S.restore.full ? 'checked' : ''} ${busy ? 'disabled' : ''}> ${t('r_full')}</label>
-      <div class="buttons">
-        <button class="btn" data-action="choose-backup" ${busy ? 'disabled' : ''}>${t('change_dir')}</button>
-        ${st.native ? `<button class="btn ghost" data-action="reveal-backup">${t('open_backup')}</button>` : ''}
-      </div>
-    </section>
-  </div>`;
 }
 
 function restoreMain() {
@@ -977,7 +972,8 @@ function renderModal() {
     return;
   }
   if (!S.modal) { root.innerHTML = ''; return; }
-  const titles = { sync: S.server.sync.kind === 'move' ? t('move_title') : t('sync_title'), flash: t('flash_title'), move: t('move_title'), account: t('login_title') };
+  const flashTitle = S.flash.mode === 'file' ? t('local_title') : S.flash.mode === 'backup' ? t('backup_write_title') : t('flash_title');
+  const titles = { sync: S.server.sync.kind === 'move' ? t('move_title') : t('sync_title'), flash: flashTitle, move: t('move_title'), account: t('login_title') };
   root.innerHTML = `<div class="overlay"><div class="modal narrow" role="dialog" aria-modal="true">
     <div class="modal-head"><h2>${titles[S.modal]}</h2>${canClose() ? `<button class="close" data-action="close-modal" aria-label="close">${ICON.close}</button>` : ''}</div>
     <div class="modal-body sync-card" id="modal-body"></div></div></div>`;
@@ -1032,6 +1028,7 @@ function renderSettings() {
   if (S.checking || up.checking) updateLine = t('checking');
   else if (up.checkedAt && up.checkedAt[0] !== '0') updateLine = up.error ? errText('network') : up.available ? t('banner_update', up.changes) : t('up_to_date');
   return `<div class="settings">
+    <a class="btn ghost small" href="#/me">‹ ${t('nav_me')}</a>
     <h1>${t('settings_title')}</h1>
     <section class="panel">
       <h2>${t('s_library')}</h2><p>${t('s_library_sub')}</p>
@@ -1061,13 +1058,7 @@ function renderSettings() {
       <h2>${t('s_language')}</h2>
       <div class="segmented mt10">${[['auto', t('lang_auto')], ['zh', '中文'], ['en', 'English']].map(([k, label]) => `<button class="${st.language === k ? 'active' : ''}" data-action="set-lang" data-lang="${k}">${label}</button>`).join('')}</div>
     </section>
-    ${S.advanced ? `<section class="panel">
-      <h2>${t('s_advanced')}</h2>
-      <div class="setting-row">
-        <div><b>${t('s_prefetch')}</b><p>${t('s_prefetch_sub')}</p></div>
-        <div class="segmented">${[[false, t('off')], [true, t('on')]].map(([v, label]) => `<button class="${!!st.prefetch === v ? 'active' : ''}" data-action="set-prefetch" data-on="${v}">${label}</button>`).join('')}</div>
-      </div>
-    </section>` : ''}
+    ${S.advanced ? batchPanel() : ''}
     <section class="panel">
       <h2>${t('s_about')}</h2>
       <dl class="kv">
@@ -1128,16 +1119,8 @@ const actions = {
     S.versionTaps = [];
     S.advanced = !S.advanced;
     localStorage.setItem('plays-advanced', S.advanced ? '1' : '0');
-    toast(t(S.advanced ? 'advanced_on' : 'advanced_off'));
+    toast(t(S.advanced ? 'hidden_on' : 'hidden_off'));
     render();
-  },
-  'set-prefetch': async el => {
-    try {
-      await api('settings/prefetch', { on: el.dataset.on === 'true' });
-      S.server.prefetch = el.dataset.on === 'true';
-      toast(t('saved'));
-      render();
-    } catch (e) { showError(e); }
   },
   'open-sync': () => { S.modal = 'sync'; renderModal(); },
   'start-sync': () => startSync(),
@@ -1189,7 +1172,9 @@ const actions = {
   'flash': el => {
     if (S.server.flash.active && S.server.flash.kind !== 'flash') { toast(t('err_busy'), true); return; }
     S.flash.slug = el.dataset.slug;
+    S.flash.mode = 'play';
     S.flash.port = '';
+    S.flash.agree = false;
     S.modal = 'flash';
     api('flash/reset', {}).catch(() => {});
     S.server.flash = { stage: 'idle', logs: [] };
@@ -1203,12 +1188,12 @@ const actions = {
   'scan-ports': () => { S.flash.ports = null; updateModal(); scanPorts(); },
   'start-flash': async () => {
     try {
-      await api('flash/start', { slug: S.flash.slug, port: S.flash.port });
+      await startFlashTarget();
       await poll();
       renderModal();
     } catch (e) { showError(e); }
   },
-  'go-restore': (el, ev) => { ev.preventDefault(); if (S.server.flash.active) return; closeModal(); location.hash = '#/restore'; },
+  'go-restore': (el, ev) => { ev.preventDefault(); if (S.server.flash.active) return; closeModal(); location.hash = '#/tools/restore'; },
   'restore-confirm': () => { S.restore.confirm = true; updateRestore(); },
   'restore-unconfirm': () => { S.restore.confirm = false; updateRestore(); },
   'restore-go': () => startRestore(),
@@ -1254,12 +1239,13 @@ document.addEventListener('click', ev => {
   if (!el) return;
   const fn = actions[el.dataset.action];
   if (!fn) return;
-  if (el.dataset.action === 'pick-port') return; // handled on change
+  if (el.dataset.action === 'pick-port' || el.dataset.action === 'flash-agree') return; // handled on change
   if (el.closest('.card, .feature-card') && el.dataset.action !== 'open-play') ev.stopPropagation();
   fn(el, ev);
 });
 document.addEventListener('change', ev => {
   if (ev.target.matches('[data-action="pick-port"]')) actions['pick-port'](ev.target);
+  if (ev.target.matches('[data-action="flash-agree"]')) { S.flash.agree = ev.target.checked; updateModal(); }
   if (ev.target.id === 'restore-full') S.restore.full = ev.target.checked;
 });
 document.addEventListener('toggle', ev => {
@@ -1314,7 +1300,11 @@ async function poll(forceRender) {
     if (p && st.fetch.slug === p.slug && st.fetch.done && !p.ready) { p.ready = true; refreshReady(); }
     if (p && p.ready && !S.flash.scanTimer && st.flash.stage === 'idle') startPortScan();
   }
-  if (prev && prev.flash.stage !== 'done' && st.flash.stage === 'done' && S.flash.slug) recordInstall(S.flash.slug);
+  if (prev && prev.flash.stage !== 'done' && st.flash.stage === 'done') {
+    rememberDevice(st.flash);
+    if (st.flash.kind === 'flash' && st.flash.slug) recordInstall(st.flash.slug);
+    if (st.flash.kind === 'backup' || S.flash.mode === 'backup') BK.list = null;
+  }
   const syncFinished = lastSyncRunning && !st.sync.running;
   lastSyncRunning = st.sync.running;
   const r = parseRoute();
@@ -1328,9 +1318,10 @@ async function poll(forceRender) {
       if (inline) { inline.innerHTML = syncBody(); applyWidths(inline); } else render();
     }
     if (S.modal === 'sync' || S.modal === 'flash') updateModal();
-    if (r.name === 'restore') updateRestore();
+    if (r.name === 'tools') updateRestore();
+    if (r.name === 'settings') updateBatch();
   }
-  const busy = st.sync.running || st.flash.active || S.modal === 'flash';
+  const busy = st.sync.running || st.flash.active || S.modal === 'flash' || (st.batch && st.batch.running);
   pollTimer = setTimeout(poll, busy ? 700 : 4000);
 }
 

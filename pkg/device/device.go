@@ -37,6 +37,9 @@ type Request struct {
 	// Factory restore only.
 	FirmwareDir string `json:"firmwareDir,omitempty"`
 	FullBackup  bool   `json:"fullBackup,omitempty"`
+	// ExpectMAC writes a full-flash backup back: the device must have this MAC and
+	// a flash exactly as large as the image.
+	ExpectMAC string `json:"expectMac,omitempty"`
 }
 
 // Event reports progress to the UI. Types: stage, identified, progress, log, hint,

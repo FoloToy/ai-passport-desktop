@@ -4,7 +4,7 @@
 
 ## 项目是什么
 
-**AI Passport 玩法社区（离线桌面版）**：把 https://ai-passport.folotoy.cn/plays/ 的玩法全部下载到本地，离线浏览，并把玩法固件刷进 AI Passport（ESP32-C3，8 MB Flash）。另外有"设备工具"：备份固件（只读）和恢复出厂固件。
+**AI Passport 玩法社区（离线桌面版）**：把 https://ai-passport.folotoy.cn/plays/ 的玩法全部下载到本地，离线浏览，并把玩法固件刷进 AI Passport（ESP32-C3，8 MB Flash）。界面和安卓 App 一致，分「设备 / 玩法 / 工具 / 我的」四个标签（设置在「我的」里）。「工具」页：安装本地固件、备份设备、我的备份（写回原设备）、恢复出厂、安装小程序玩法安装器；需要蓝牙或 NFC 的功能桌面版还没有，界面上标为「需要蓝牙」。
 
 - 仓库：`FoloToy/ai-passport-desktop`（公开，MIT 许可证，见 `LICENSE`），默认分支 `main`，PR 也提到 `main`。
 - 平台：macOS（arm64 / x86_64 / universal）、Windows 10/11 x64、Linux（amd64 / arm64，Ubuntu 22.04+ / Debian 12+，`.deb` 和 `.tar.gz`）。
@@ -26,7 +26,7 @@
 ```
 main.go               启动、命令行参数（-headless -listen -state-dir -origin -self-test）、127.0.0.1 调试服务
 ui_desktop.go         Wails 窗口（macOS / Win10+ / Linux）
-frontend/             index.html app.css app.js（SPA，含全部中英文案）；community.js（登录注册、点赞、收藏、评论、"我的"）
+frontend/             index.html app.css app.js（SPA、玩法页、设置）；community.js（登录、点赞、收藏、评论、浏览计数、"我的"）；tools.js（设备、工具、我的备份、展会批量下载）；phone-countries.js（登录的国家区号，和网站、安卓同一份）
 internal/
   esp/                ESP32-C3 串口协议：SLIP、命令、同步、复位、stub、压缩写、读、MD5、看门狗复位
     stub/             esp32c3.json（esp-flasher-stub v1.4.1，Apache-2.0/MIT）+ 许可证
@@ -109,7 +109,9 @@ ESP_REAL_BACKUP_DIR=<目录> go test -count=1 -v -run TestRealDeviceBackup ./pkg
 ### 社区接口
 
 - 固件下载接口 `/api/download/...` 按 IP 限流（大约 20–30 次后返回 429，封 30 分钟以上）。测试时不要反复全量下载；列表和图片接口不限流。
-- 所以"更新玩法库"默认只下载玩法信息和图片，固件在第一次刷入时下载并保存。全量下载固件是隐藏设置（`settings.PrefetchFirmware`，在设置页的版本号上连点 5 次显示），默认关闭。
+- 所以"更新玩法库"默认只下载玩法信息和图片，固件在第一次刷入时下载并保存。没有"下载全部固件"。隐藏功能"展会批量下载"（设置页的版本号上 3 秒内连点 5 次显示）只下载玩法首页第一屏的 16 个玩法（`core.StartBatch`，最多 `syncer.MaxBatch` 个），被限流时等待后继续。
+- 登录和安卓一致：一个页面，手机号（带国家区号，发 E.164）或邮箱验证码登录，首次登录自动注册；不做单独的注册页、密码登录和年龄勾选。
+- 统计和网站、安卓一致：打开玩法详情时 `POST /api/engagement/{kind}/{slug}/view`；刷入成功且已登录时记安装历史；下载数由服务器按固件下载计。
 - 账号相关请求走 `/api/community`，由 `pkg/account` 加上会话和 CSRF 后转发到社区站；新接口要先加进 `account.Allowed` 的白名单。会话文件里有登录凭据，不要提交或贴出来。
 
 ### 许可证

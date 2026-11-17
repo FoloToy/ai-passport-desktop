@@ -169,18 +169,12 @@ func (c *Core) StartSync() error {
 	if dir == "" {
 		return fail("no_library", errors.New("choose a library folder first"))
 	}
-	c.Sync.SetPrefetchFirmware(c.Settings.Get().PrefetchFirmware)
+	// Updating never bulk-downloads firmware; see StartBatch for the hidden booth feature.
+	c.Sync.SetPrefetchFirmware(false)
 	if err := c.Sync.Start(dir); err != nil {
 		return fail(err.Error(), err)
 	}
 	return nil
-}
-
-// SetPrefetchFirmware turns the hidden "download every firmware when updating" setting on or off.
-// It applies from the next update; an update that is running keeps its choice.
-func (c *Core) SetPrefetchFirmware(on bool) error {
-	_, err := c.Settings.Update(func(s *settings.Settings) { s.PrefetchFirmware = on })
-	return err
 }
 
 // FetchFirmware downloads one play's firmware on demand.

@@ -51,6 +51,8 @@ type Job struct {
 	Baud   int
 	// BackupDir keeps a copy of the device identity area if the image overwrites it.
 	BackupDir string
+	// ExpectMAC is set when a full-flash backup is written back to its device.
+	ExpectMAC string
 }
 
 // RestoreJob is a factory restore. The worker finds the device by itself.
@@ -181,7 +183,7 @@ func (m *Manager) run(ctx context.Context, job Job) {
 		m.fail(code, err)
 		return
 	}
-	err := m.runner.Flash(ctx, device.Request{Port: job.Port, Image: job.Image, SHA256: job.SHA256, Size: job.Size, Baud: job.Baud, BackupDir: job.BackupDir}, m.event)
+	err := m.runner.Flash(ctx, device.Request{Port: job.Port, Image: job.Image, SHA256: job.SHA256, Size: job.Size, Baud: job.Baud, BackupDir: job.BackupDir, ExpectMAC: job.ExpectMAC}, m.event)
 	m.finish(err)
 }
 

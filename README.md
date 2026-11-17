@@ -31,7 +31,7 @@ The offline desktop edition of the AI Passport App Library. It downloads every p
 
 ## 备份固件
 
-在"设备工具"页点"开始备份"。和恢复出厂一样会自动找设备，然后读取整片 Flash，保存为 `<备份目录>/<时间>-<MAC>-firmware-backup/AI-Passport-<MAC>-<时间>-full-flash.bin`，旁边有 `.sha256`、日志和报告。读完后让设备自己计算 MD5 并比对，一致才算成功。不会向设备写入任何内容。
+在「工具 → 备份设备」点"开始备份"。和恢复出厂一样会自动找设备，然后读取整片 Flash，保存为 `<备份目录>/<时间>-<MAC>-firmware-backup/AI-Passport-<MAC>-<时间>-full-flash.bin`，旁边有 `.sha256`、日志和报告。读完后让设备自己计算 MD5 并比对，一致才算成功。不会向设备写入任何内容。
 
 ## 恢复出厂
 

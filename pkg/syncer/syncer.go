@@ -122,6 +122,9 @@ type Manager struct {
 	priority     chan string
 	// prefetch: download every firmware during a sync (stage 2). Off by default.
 	prefetch atomic.Bool
+
+	batch       BatchState
+	batchCancel context.CancelFunc
 }
 
 func New(client *Client) *Manager {
@@ -192,7 +195,7 @@ func (m *Manager) set(change func(*State)) {
 func (m *Manager) begin(kind string) (context.Context, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if m.state.Running || m.fetch.Running {
+	if m.state.Running || m.fetch.Running || m.batch.Running {
 		return nil, errors.New(CodeBusy)
 	}
 	ctx, cancel := context.WithCancel(context.Background())

@@ -144,6 +144,8 @@ var allowed = []*regexp.Regexp{
 	regexp.MustCompile(`^/api/me/follows/(play|creator)/\d{1,12}$`),
 	regexp.MustCompile(`^/api/me/install-history/\d{1,12}$`),
 	regexp.MustCompile(`^/api/me/profile$`),
+	regexp.MustCompile(`^/api/me/submissions$`),
+	regexp.MustCompile(`^/api/me/notifications/(\d{1,12}/read|read-all)$`),
 	regexp.MustCompile(`^/api/auth/(login|logout|register|phone-register|code-login)$`),
 	regexp.MustCompile(`^/api/auth/(verification-code|phone-registration/verification-code|code-login/verification-code)/request$`),
 	regexp.MustCompile(`^/api/auth/password-reset/(request|phone/request|phone/confirm)$`),

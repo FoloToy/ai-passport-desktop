@@ -13,6 +13,7 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -34,8 +35,10 @@ type Server struct {
 
 	// Native hooks; nil in headless development mode.
 	ChooseDir func(title, current string) (string, error)
-	Reveal    func(path string) error
-	OpenURL   func(url string) error
+	// ChooseFile picks one firmware file (.bin).
+	ChooseFile func(title string) (string, error)
+	Reveal     func(path string) error
+	OpenURL    func(url string) error
 
 	// Account forwards community requests (sign-in, likes, favorites, comments); nil disables them.
 	Account *account.Client
@@ -140,6 +143,13 @@ func (s *Server) api(w http.ResponseWriter, r *http.Request) {
 		case "/api/ready":
 			slugs, version := s.Sync.Ready()
 			reply(w, 200, map[string]any{"slugs": slugs, "version": version})
+		case "/api/backups":
+			list, err := s.ListBackups()
+			if err != nil {
+				fail(w, core.Code(err), err)
+				return
+			}
+			reply(w, 200, list)
 		case "/api/library/usage":
 			lib := s.Library()
 			size, files := lib.Usage()
@@ -167,8 +177,9 @@ func (s *Server) api(w http.ResponseWriter, r *http.Request) {
 		Port     string `json:"port"`
 		Target   string `json:"target"`
 		// FullBackup defaults to true when omitted.
-		FullBackup *bool `json:"fullBackup"`
-		On         bool  `json:"on"`
+		FullBackup *bool    `json:"fullBackup"`
+		Path       string   `json:"path"`
+		Slugs      []string `json:"slugs"`
 	}
 	// Always read the body: WebKit's custom-scheme requests carry no Content-Length,
 	// so Wails reports ContentLength 0 even when a JSON body is present.
@@ -183,8 +194,30 @@ func (s *Server) api(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/api/settings":
 		err = s.SetLanguage(body.Language)
-	case "/api/settings/prefetch":
-		err = s.SetPrefetchFirmware(body.On)
+	case "/api/file/choose":
+		if s.ChooseFile == nil {
+			fail(w, "no_picker", errors.New("native file picker unavailable"))
+			return
+		}
+		var path string
+		path, err = s.ChooseFile("选择固件文件 / Choose a firmware file")
+		out = map[string]string{"path": path}
+	case "/api/flash/file":
+		err = s.StartFlashFile(body.Path, body.Port)
+	case "/api/backups/restore":
+		err = s.StartRestoreBackup(body.Path, body.Port)
+	case "/api/backups/delete":
+		err = s.DeleteBackup(body.Path)
+	case "/api/backups/reveal":
+		if s.Reveal == nil {
+			err = errors.New("not available")
+		} else {
+			err = s.Reveal(filepath.Dir(filepath.Clean(body.Path)))
+		}
+	case "/api/batch/start":
+		err = s.StartBatch(body.Slugs)
+	case "/api/batch/cancel":
+		s.Sync.CancelBatch()
 	case "/api/library/choose":
 		if s.ChooseDir == nil {
 			fail(w, "no_picker", errors.New("native folder picker unavailable"))
@@ -249,7 +282,8 @@ func (s *Server) state() map[string]any {
 		"worker":         s.Runner.Available(),
 		"native":         s.ChooseDir != nil,
 		"language":       cfg.Language,
-		"prefetch":       cfg.PrefetchFirmware,
+		"batch":          s.Sync.Batch(),
+		"installer":      core.InstallerSlug,
 		"origin":         s.origin(),
 		"systemLanguage": s.systemLanguage,
 		"library":        s.LibraryInfo(),
@@ -345,7 +379,7 @@ func (s *Server) origin() string {
 var sitePages = map[string]string{
 	"terms": "/legal/terms/", "privacy": "/legal/privacy/",
 	"terms-en": "/en/legal/terms/", "privacy-en": "/en/legal/privacy/",
-	"account": "/account/",
+	"account": "/account/", "creator": "/creators/",
 }
 
 func (s *Server) openSite(target string) error {

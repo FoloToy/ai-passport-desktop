@@ -329,3 +329,41 @@ func TestThrottleBacksOff(t *testing.T) {
 	}
 	throttleBase, throttleMax = 30*time.Second, 10*time.Minute
 }
+
+func TestBatchDownloadsOnlyTheGivenPlays(t *testing.T) {
+	site := newFakeSite(3)
+	srv := httptest.NewServer(site)
+	defer srv.Close()
+	root := t.TempDir()
+	lib := library.Library{Root: root}
+	m := New(NewClient(srv.URL, "test"))
+	plays, _, err := m.Client.listAll(t.Context(), nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i := range plays {
+		m.syncCatalog(t.Context(), lib, &plays[i])
+	}
+	if err := m.StartBatch(root, []string{"play-2", "play-1", "play-2", "../x"}); err != nil {
+		t.Fatal(err)
+	}
+	deadline := time.Now().Add(5 * time.Second)
+	for m.Batch().Running && time.Now().Before(deadline) {
+		time.Sleep(10 * time.Millisecond)
+	}
+	if b := m.Batch(); b.Total != 2 || b.Done != 2 || b.Failed != 0 {
+		t.Fatalf("batch: %+v", b)
+	}
+	for slug, want := range map[string]bool{"play-1": true, "play-2": true, "play-3": false} {
+		if _, _, ok := LocalFirmware(lib, slug); ok != want {
+			t.Fatalf("%s ready = %v, want %v", slug, ok, want)
+		}
+	}
+	// A second batch skips what is already there.
+	if err := m.StartBatch(root, []string{"play-1", "play-2"}); err != nil {
+		t.Fatal(err)
+	}
+	if b := m.Batch(); b.Running || b.Skipped != 2 || b.Done != 2 {
+		t.Fatalf("second batch: %+v", b)
+	}
+}

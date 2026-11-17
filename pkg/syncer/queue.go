@@ -223,7 +223,7 @@ func (m *Manager) FetchOne(root, slug string) error {
 	}
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if m.fetch.Running {
+	if m.fetch.Running || m.batch.Running {
 		return errors.New(CodeBusy)
 	}
 	if m.state.Running {

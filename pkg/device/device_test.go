@@ -645,3 +645,24 @@ func TestWaitingSaysWhenNothingWasEverSeen(t *testing.T) {
 		t.Fatalf("hints %v", codes)
 	}
 }
+
+func TestBackupWriteBackChecksDeviceAndSize(t *testing.T) {
+	run := func(d *fakeDevice, data []byte, mac string) error {
+		path, sum := writeImage(t, data)
+		return flashImage(t.Context(), func(string, string, int, func(string)) (Device, error) { return d, nil },
+			Request{Port: "/dev/null", Image: path, SHA256: sum, ExpectMAC: mac}, func(Event) {})
+	}
+	full := playImage(8 << 20)
+	d := newFake()
+	if err := run(d, full, "AA:BB:CC:DD:EE:FF"); codeOf(err) != "wrong_device" || len(d.writes) != 0 {
+		t.Fatalf("other device: %v", err)
+	}
+	d = newFake()
+	if err := run(d, playImage(4096), "4C11AE326234"); codeOf(err) != "image" || len(d.writes) != 0 {
+		t.Fatalf("short backup: %v", err)
+	}
+	d = newFake()
+	if err := run(d, full, "4C11AE326234"); err != nil || !bytes.Equal(d.flash, full) {
+		t.Fatalf("write back: %v", err)
+	}
+}
