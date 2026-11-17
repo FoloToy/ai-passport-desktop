@@ -14,6 +14,7 @@ The offline desktop edition of the AI Passport App Library. It downloads every p
 - **刷机**：选择串口 → 校验固件 → 检测芯片必须是 ESP32-C3、Flash 至少 8 MB、未开启安全启动 → 从 0x0 写入 → 回读校验 → 重启。一次刷一台。
 - **备份固件**：把设备上现有的整片 Flash（8 MB）读出来保存到电脑，只读不写，并和设备上计算的 MD5 核对。
 - **恢复出厂**：一键把 AI Passport 恢复成出厂固件，不用选串口（详见下文）。取代原来的 FoloToy-AI-Passport-Factory-Restore 工具。
+- **蓝牙**（和安卓 App 一致）：搜索附近设备、我的设备；编辑通行证（资料、头像、全屏图、TRAE 头像、开机音乐、设备设置）；给安装模式设备配 Wi-Fi，并在玩法页「无线安装」——电脑先下载并核对固件，再让设备通过 Wi-Fi 下载同一份文件；BluFi 配网。macOS 第一次打开时会请求蓝牙权限；Linux 需要 BlueZ。用 `go run -tags blefake . -headless …` 可以用模拟设备调这些界面。
 - **设置**：选择 / 更换玩法存储目录（可迁移已有数据）、检查更新、语言（跟随系统 / 中文 / English）。
 - **首次启动**：安装包里不带任何玩法。首次打开时引导用户选择目录并下载。
 

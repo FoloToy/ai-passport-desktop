@@ -4,7 +4,7 @@
 
 ## 项目是什么
 
-**AI Passport 玩法社区（离线桌面版）**：把 https://ai-passport.folotoy.cn/plays/ 的玩法全部下载到本地，离线浏览，并把玩法固件刷进 AI Passport（ESP32-C3，8 MB Flash）。界面和安卓 App 一致，分「设备 / 玩法 / 工具 / 我的」四个标签（设置在「我的」里）。「工具」页：安装本地固件、备份设备、我的备份（写回原设备）、恢复出厂、安装小程序玩法安装器；需要蓝牙或 NFC 的功能桌面版还没有，界面上标为「需要蓝牙」。
+**AI Passport 玩法社区（离线桌面版）**：把 https://ai-passport.folotoy.cn/plays/ 的玩法全部下载到本地，离线浏览，并把玩法固件刷进 AI Passport（ESP32-C3，8 MB Flash）。界面和安卓 App 一致，分「设备 / 玩法 / 工具 / 我的」四个标签（设置在「我的」里）。「工具」页：安装本地固件、备份设备、我的备份（写回原设备）、恢复出厂、安装小程序玩法安装器、BluFi 配网。蓝牙功能（附近设备、通行证编辑、安装模式设备配网和无线安装、BluFi）由 Go 端 `internal/ble` 操作蓝牙，前端用 `frontend/passport-ble/`（和安卓同一套协议代码）通过 `/api/ble/*` 收发数据。
 
 - 仓库：`FoloToy/ai-passport-desktop`（公开，MIT 许可证，见 `LICENSE`），默认分支 `main`，PR 也提到 `main`。
 - 平台：macOS（arm64 / x86_64 / universal）、Windows 10/11 x64、Linux（amd64 / arm64，Ubuntu 22.04+ / Debian 12+，`.deb` 和 `.tar.gz`）。
@@ -37,7 +37,13 @@ internal/
   syncer/             社区接口、下载玩法信息和图片、按需下载固件、限流退避
   account/            社区账号：会话 cookie（状态目录 session.json，0600）、CSRF，只转发白名单内的接口
   library/            本地玩法库目录结构
-  desktop/            本地 JSON API（/api/*，X-Plays-Token 鉴权）、媒体文件、内嵌界面
+  desktop/            本地 JSON API（/api/*，X-Plays-Token 鉴权）、媒体文件、内嵌界面；passport.go（通行证记忆、产品类型查询）
+  ble/                蓝牙桥（/api/ble/*：扫描、连接、读写、通知长轮询），一次一个连接
+    native/           tinygo.org/x/bluetooth（macOS CoreBluetooth、Windows WinRT、Linux BlueZ）
+    blefake/          -tags blefake 时的模拟设备（一台通行证、一台安装模式设备），调界面用
+pkg/firmware/recovery.go  无线安装前的镜像检查（移植自安卓 RecoveryImage）
+pkg/core/wireless.go      无线安装计划（固件地址、大小、SHA-256、应用偏移）
+frontend/ble.js ble-bridge.js ble-boot.js passport-ble/ passport/   蓝牙界面、传输层、协议库、TRAE 头像和字符集
   settings/ instance/ 设置文件、单实例锁
 scripts/              打包脚本、publish-tos.py（上传到火山引擎 TOS），见 docs/RELEASE.md
 docs/                 WINDOWS-BUILD.md（Win10+ 打包）、RELEASE.md（发版）
@@ -52,6 +58,8 @@ go vet ./... && go test -race ./...            # 改完代码必跑
 GOOS=windows go vet ./...                      # Windows 专用代码（hints、diskfree）
 go run . -headless -listen 127.0.0.1:47811 -state-dir /tmp/plays-state   # 浏览器里调界面
 go run . -self-test                            # 检查内置 stub 和出厂固件
+go run -tags blefake . -headless -listen 127.0.0.1:47811 -state-dir /tmp/plays-state   # 用模拟蓝牙设备调界面
+node --test frontend/passport-ble/test/*.mjs   # 蓝牙协议库测试
 node -e "new Function(require('fs').readFileSync('frontend/app.js','utf8'))"  # 改 app.js 后做语法检查
 ```
 
@@ -131,6 +139,7 @@ ESP_REAL_BACKUP_DIR=<目录> go test -count=1 -v -run TestRealDeviceBackup ./pkg
 ## 还没验证的部分（改相关代码时要特别小心）
 
 - 刷入玩法和恢复出厂的**写入流程还没有在真机上跑过**（只在 QEMU 上验证）；读、备份、两种自动重启已在真机验证。
+- **蓝牙功能没有连过真机**：只在 macOS 上用真实蓝牙扫描过附近设备，连接、通行证编辑、配网、无线安装、BluFi 只在 `blefake` 模拟设备上跑过。连接通行证会写入对时命令，所以连真机前要先征得用户同意。Windows（WinRT）和 Linux（BlueZ）的蓝牙只编译过。
 - Intel Mac 版只在 Rosetta 下自检过。
 - Linux 版只在容器里自检过（Ubuntu 22.04 编译、24.04 安装），没有在有桌面的 Linux 上打开过窗口、也没有接真机；udev 规则没在真机上验证。
 - 待办以 `PLAN.md` 第 13 节为准，完成一项就更新那里。

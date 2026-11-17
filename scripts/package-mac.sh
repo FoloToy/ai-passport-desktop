@@ -66,6 +66,7 @@ package() {
 <key>LSApplicationCategoryType</key><string>public.app-category.utilities</string>
 <key>NSHighResolutionCapable</key><true/>
 <key>NSHumanReadableCopyright</key><string>FoloToy</string>
+<key>NSBluetoothAlwaysUsageDescription</key><string>用蓝牙连接附近的 AI Passport：无线安装玩法、配置 Wi-Fi、编辑通行证。Bluetooth connects to nearby AI Passports to install apps wirelessly, set up Wi-Fi and edit the passport.</string>
 </dict></plist>
 PLIST
   git rev-parse HEAD > "$app/Contents/Resources/source-commit.txt" 2>/dev/null || true

@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/FoloToy/ai-passport-desktop/internal/ble"
 	"github.com/FoloToy/ai-passport-desktop/internal/desktop"
 	"github.com/FoloToy/ai-passport-desktop/pkg/account"
 	"github.com/FoloToy/ai-passport-desktop/pkg/device"
@@ -25,7 +26,7 @@ import (
 	"github.com/FoloToy/ai-passport-desktop/pkg/syncer"
 )
 
-var version = "0.7.0-dev"
+var version = "0.8.0-dev"
 
 const appTitle = "AI Passport 玩法社区"
 
@@ -70,6 +71,9 @@ func main() {
 	} else {
 		log.Print("account: ", err)
 	}
+	bridge := ble.New(newRadio())
+	defer bridge.Close()
+	server.BLE = bridge
 	server.CheckUpdatesInBackground()
 
 	if *headless {

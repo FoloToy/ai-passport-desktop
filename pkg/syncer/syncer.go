@@ -586,3 +586,24 @@ func (m *Manager) CheckUpdates(ctx context.Context, idx *library.Index) {
 	m.update = info
 	m.mu.Unlock()
 }
+
+// FirmwareURL is the absolute community download URL of a play's firmware, from the
+// play record saved in the library. The Play Installer downloads this URL itself.
+func (m *Manager) FirmwareURL(root, slug string) (string, error) {
+	lib := library.Library{Root: root}
+	if !library.ValidSlug(slug) || root == "" {
+		return "", errors.New("invalid play")
+	}
+	mf := readMeta(lib, slug)
+	if mf == nil {
+		return "", errors.New("play not found")
+	}
+	var p remotePlay
+	if err := json.Unmarshal(mf.Remote, &p); err != nil {
+		return "", err
+	}
+	if !hasFirmware(&p) {
+		return "", ErrNoFirmware
+	}
+	return m.Client.absolute(p.Firmware.URL)
+}

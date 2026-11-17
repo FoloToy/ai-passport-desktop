@@ -340,7 +340,7 @@ function parseRoute() {
   const params = new URLSearchParams(query || '');
   if (path.startsWith('/play/')) return { name: 'library', play: decodeURIComponent(path.slice(6)), params };
   if (path === '/settings') return { name: 'settings', params };
-  if (path === '/device') return { name: 'device', params };
+  if (path === '/device' || path.startsWith('/device/')) return { name: 'device', sub: path.slice(8), params };
   if (path === '/restore') return { name: 'tools', tool: 'restore', params };
   if (path === '/tools' || path.startsWith('/tools/')) return { name: 'tools', tool: path.slice(7), params };
   if (path === '/me' || path.startsWith('/me/')) return { name: 'me', list: path.slice(4), params };
@@ -418,7 +418,7 @@ function render() {
   if (r.name === 'settings') {
     app.innerHTML = renderSettings();
   } else if (r.name === 'device') {
-    app.innerHTML = renderDevice();
+    app.innerHTML = r.sub ? renderBleDevice(r.sub) : renderDevice();
   } else if (r.name === 'tools') {
     app.innerHTML = renderTools();
   } else if (r.name === 'me') {
@@ -435,7 +435,8 @@ function render() {
   applyWidths(app);
   renderModal();
   if (r.name === 'settings') refreshUsage();
-  watchUsb(r.name === 'device' || r.name === 'tools');
+  watchUsb((r.name === 'device' && !r.sub) || r.name === 'tools');
+  bleAfterRender();
 }
 
 /* ---------------- welcome ---------------- */
@@ -686,7 +687,7 @@ function renderDetail() {
       <div>
         <h1>${esc(pick(p.title))}</h1>
         <div class="install-box">
-          <div class="install-row">${installButton(p, true)}
+          <div class="install-row">${installButton(p, true)}${wirelessButton(p)}
             <button class="btn ghost small" data-action="reveal-play" data-slug="${esc(p.slug)}">${reveal}</button>
             <button class="btn ghost small" data-action="open-web" data-slug="${esc(p.slug)}">${t('open_web')} ↗</button>
           </div>
@@ -973,7 +974,7 @@ function renderModal() {
   }
   if (!S.modal) { root.innerHTML = ''; return; }
   const flashTitle = S.flash.mode === 'file' ? t('local_title') : S.flash.mode === 'backup' ? t('backup_write_title') : t('flash_title');
-  const titles = { sync: S.server.sync.kind === 'move' ? t('move_title') : t('sync_title'), flash: flashTitle, move: t('move_title'), account: t('login_title') };
+  const titles = { sync: S.server.sync.kind === 'move' ? t('move_title') : t('sync_title'), flash: flashTitle, move: t('move_title'), account: t('login_title'), wireless: t('wi_title'), crop: t('pp_crop') };
   root.innerHTML = `<div class="overlay"><div class="modal narrow" role="dialog" aria-modal="true">
     <div class="modal-head"><h2>${titles[S.modal]}</h2>${canClose() ? `<button class="close" data-action="close-modal" aria-label="close">${ICON.close}</button>` : ''}</div>
     <div class="modal-body sync-card" id="modal-body"></div></div></div>`;
@@ -982,6 +983,7 @@ function renderModal() {
 
 function canClose() {
   if (S.modal === 'flash') return !S.server.flash.active;
+  if (S.modal === 'wireless') return !instInstalling();
   return true;
 }
 
@@ -993,6 +995,11 @@ function updateModal() {
   const pre = body.querySelector('details.log pre');
   const atBottom = pre ? pre.scrollTop + pre.clientHeight >= pre.scrollHeight - 8 : true;
   if (S.modal === 'account') { body.innerHTML = accountBody(); return; }
+  if (S.modal === 'wireless' || S.modal === 'crop') {
+    bleReplace(body, S.modal === 'wireless' ? wirelessBody() : cropBody());
+    if (S.modal === 'crop') cropDraw();
+    return;
+  }
   body.innerHTML = S.modal === 'sync' ? syncBody() : S.modal === 'flash' ? flashBody() : moveBody();
   applyWidths(body);
   const nd = body.querySelector('details.log');
@@ -1009,6 +1016,8 @@ function updateModal() {
 }
 
 function closeModal() {
+  if (S.modal === 'wireless' && instInstalling()) return;
+  if (S.modal === 'crop' && BL.crop) { if (BL.crop.bmp.close) BL.crop.bmp.close(); BL.crop = null; }
   if (S.modal === 'flash') {
     if (S.server.flash.active) return;
     stopPortScan();
@@ -1016,6 +1025,7 @@ function closeModal() {
   }
   S.modal = null;
   renderModal();
+  bleSyncScan();
 }
 
 /* ---------------- settings ---------------- */

@@ -158,4 +158,6 @@ worker 端（esptool）：
 - Go 刷机（2026-11-12 替换 Python esptool）实机验收：刷入玩法、恢复出厂、备份固件、USB-JTAG 复位进下载模式、460800 波特率切换、Windows Code 43 抓取。目前只在 QEMU（esp-develop-9.2.2）上验证过。
 - Windows 7/8 版本：2026-11-14 从本仓库移出，改为独立的原生 Win32 客户端（FoloToy/ai-passport-desktop-windows7），共用本仓库 `pkg/` 下的刷机和同步代码。本仓库不再包含 Windows 7 相关代码。
 - 备份固件实机验收（macOS 和 Windows）。
+- 蓝牙（2026-11-17 加入，`internal/ble` + `frontend/passport-ble`）实机验收：通行证编辑（资料、头像、全屏图、开机音乐、设置）、安装模式设备配网和无线安装、BluFi 配网；Windows 和 Linux 上的扫描和连接；Linux 上普通用户能否访问 BlueZ。
+- Windows 7 客户端：蓝牙仍标为不可用；新增的 `pkg/firmware/recovery.go`、`pkg/core/wireless.go` 是纯 Go，可以在那边按需接入。
 - 恢复出厂实机验收（macOS 和 Windows）：正常设备、USB 只短暂出现的设备、拔插后端口变化、同时连两台、端口被占用、完整恢复后身份区一致。

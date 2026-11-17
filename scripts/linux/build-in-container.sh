@@ -48,6 +48,7 @@ Architecture: $ARCH
 Maintainer: FoloToy <https://github.com/FoloToy/ai-passport-desktop>
 Installed-Size: $(du -sk "$root/usr" | cut -f1)
 Depends: libc6 (>= 2.35), libgtk-3-0 | libgtk-3-0t64, libwebkit2gtk-4.1-0
+Recommends: bluez
 Section: utils
 Priority: optional
 Homepage: https://ai-passport.folotoy.cn/tools/desktop-app/

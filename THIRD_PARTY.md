@@ -8,6 +8,16 @@ Serial ports are opened and enumerated with go.bug.st/serial v1.8.0
 (BSD-3-Clause, https://github.com/bugst/go-serial) and golang.org/x/sys
 (BSD-3-Clause).
 
+Bluetooth LE (`internal/ble/native`) uses tinygo.org/x/bluetooth v0.17.0
+(BSD-3-Clause, https://github.com/tinygo-org/bluetooth), which brings in
+github.com/tinygo-org/cbgo (Apache-2.0, CoreBluetooth on macOS),
+github.com/saltosystems/winrt-go and github.com/go-ole/go-ole (MIT, WinRT on
+Windows),
+github.com/godbus/dbus/v5 (BSD-2-Clause, BlueZ on Linux) and
+github.com/sirupsen/logrus (MIT). The Bluetooth protocol code in
+`frontend/passport-ble/` and the TRAE avatars and character set in
+`frontend/passport/` are FoloToy's own, shared with the Android app.
+
 Flashing runs inside the app (`pkg/esp`, `pkg/device`); there is no
 Python, PyInstaller or esptool in the application. `pkg/esp` speaks the
 ESP32 serial bootloader protocol documented by Espressif

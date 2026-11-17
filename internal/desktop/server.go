@@ -37,11 +37,16 @@ type Server struct {
 	ChooseDir func(title, current string) (string, error)
 	// ChooseFile picks one firmware file (.bin).
 	ChooseFile func(title string) (string, error)
-	Reveal     func(path string) error
-	OpenURL    func(url string) error
+	// ChooseImage picks one picture (Passport avatar and full-screen picture).
+	ChooseImage func(title string) (string, error)
+	Reveal      func(path string) error
+	OpenURL     func(url string) error
 
 	// Account forwards community requests (sign-in, likes, favorites, comments); nil disables them.
 	Account *account.Client
+
+	// BLE serves /api/ble/* (internal/ble); nil means this build has no Bluetooth.
+	BLE http.Handler
 
 	systemLanguage string
 }
@@ -56,7 +61,7 @@ func New(version string, st *settings.Store, sm *syncer.Manager, fm *flasher.Man
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Content-Type-Options", "nosniff")
-	w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data: https://ai-passport.folotoy.cn https://s.folotoy.cn; object-src 'none'; base-uri 'none'; frame-ancestors 'none'")
+	w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data: blob: https://ai-passport.folotoy.cn https://s.folotoy.cn; object-src 'none'; base-uri 'none'; frame-ancestors 'none'")
 	switch {
 	case strings.HasPrefix(r.URL.Path, "/api/"):
 		w.Header().Set("Cache-Control", "no-store")
@@ -119,6 +124,18 @@ func fail(w http.ResponseWriter, code string, err error) {
 }
 
 func (s *Server) api(w http.ResponseWriter, r *http.Request) {
+	if strings.HasPrefix(r.URL.Path, "/api/ble/") {
+		if s.BLE == nil {
+			if r.URL.Path == "/api/ble/state" {
+				reply(w, 200, map[string]any{"supported": false})
+				return
+			}
+			reply(w, http.StatusBadRequest, apiError{Code: "ble_unavailable", Message: "bluetooth is not available"})
+			return
+		}
+		s.BLE.ServeHTTP(w, r)
+		return
+	}
 	if r.Method == http.MethodGet {
 		switch r.URL.Path {
 		case "/api/state":
@@ -169,6 +186,19 @@ func (s *Server) api(w http.ResponseWriter, r *http.Request) {
 		s.community(w, r)
 		return
 	}
+	if r.URL.Path == "/api/passport/save" {
+		var in passportSave
+		if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+			fail(w, "request", err)
+			return
+		}
+		if err := s.savePassport(in); err != nil {
+			fail(w, "other", err)
+			return
+		}
+		reply(w, 200, map[string]bool{"ok": true})
+		return
+	}
 	var body struct {
 		Language string `json:"language"`
 		Dir      string `json:"dir"`
@@ -180,6 +210,7 @@ func (s *Server) api(w http.ResponseWriter, r *http.Request) {
 		FullBackup *bool    `json:"fullBackup"`
 		Path       string   `json:"path"`
 		Slugs      []string `json:"slugs"`
+		SN         string   `json:"sn"`
 	}
 	// Always read the body: WebKit's custom-scheme requests carry no Content-Length,
 	// so Wails reports ContentLength 0 even when a JSON body is present.
@@ -202,6 +233,15 @@ func (s *Server) api(w http.ResponseWriter, r *http.Request) {
 		var path string
 		path, err = s.ChooseFile("选择固件文件 / Choose a firmware file")
 		out = map[string]string{"path": path}
+	case "/api/image/choose":
+		if s.ChooseImage == nil {
+			fail(w, "no_picker", errors.New("native file picker unavailable"))
+			return
+		}
+		var path string
+		if path, err = s.ChooseImage("选择图片 / Choose a picture"); err == nil {
+			out, err = readImage(path)
+		}
 	case "/api/flash/file":
 		err = s.StartFlashFile(body.Path, body.Port)
 	case "/api/backups/restore":
@@ -255,6 +295,19 @@ func (s *Server) api(w http.ResponseWriter, r *http.Request) {
 		err = s.FetchFirmware(body.Slug)
 	case "/api/flash/start":
 		err = s.StartFlash(body.Slug, body.Port)
+	case "/api/wireless/plan":
+		out, err = s.PlanWireless(body.Slug)
+	case "/api/passport/product":
+		if !snPattern.MatchString(body.SN) {
+			fail(w, "request", errors.New("invalid SN"))
+			return
+		}
+		out = map[string]string{"product": lookupProduct(r.Context(), body.SN)}
+	case "/api/passport/load":
+		var rec *passportLoad
+		if rec, err = s.loadPassport(body.SN); err == nil {
+			out = map[string]any{"record": rec}
+		}
 	case "/api/flash/reset":
 		s.Flash.Reset()
 	case "/api/reveal":
@@ -297,6 +350,7 @@ func (s *Server) state() map[string]any {
 			"defaultBackupDir": settings.DefaultBackupDir(),
 			"firmware":         factory.Version,
 		},
+		"ble": s.BLE != nil,
 	}
 }
 
@@ -388,4 +442,28 @@ func (s *Server) openSite(target string) error {
 		return errors.New("not available")
 	}
 	return s.OpenURL(s.Account.Origin + p)
+}
+
+// readImage reads a picture the user picked; the page decodes and crops it.
+func readImage(path string) (map[string]any, error) {
+	if path == "" {
+		return map[string]any{}, nil
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	st, err := f.Stat()
+	if err != nil {
+		return nil, err
+	}
+	if !st.Mode().IsRegular() || st.Size() > 40<<20 {
+		return nil, errors.New("the picture is too large")
+	}
+	b, err := io.ReadAll(f)
+	if err != nil {
+		return nil, err
+	}
+	return map[string]any{"name": filepath.Base(path), "data": b}, nil
 }

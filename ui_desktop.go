@@ -41,6 +41,10 @@ func runUI(server *desktop.Server, flash *flasher.Manager, sync *syncer.Manager)
 		return app.Dialog.OpenFile().SetTitle(title).CanChooseFiles(true).CanChooseDirectories(false).
 			AddFilter("Firmware (*.bin)", "*.bin").AttachToWindow(window).PromptForSingleSelection()
 	}
+	server.ChooseImage = func(title string) (string, error) {
+		return app.Dialog.OpenFile().SetTitle(title).CanChooseFiles(true).CanChooseDirectories(false).
+			AddFilter("Images (*.png;*.jpg;*.jpeg;*.webp;*.gif;*.bmp;*.heic)", "*.png;*.jpg;*.jpeg;*.webp;*.gif;*.bmp;*.heic").AttachToWindow(window).PromptForSingleSelection()
+	}
 	server.OpenURL = app.Browser.OpenURL
 	window.OnWindowEvent(events.Common.WindowClosing, func(e *application.WindowEvent) {
 		if flash.Active() {

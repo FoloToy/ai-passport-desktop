@@ -4,17 +4,16 @@
 
 Object.assign(I18N.zh, {
   nav_device: '设备', nav_plays: '玩法', nav_tools: '工具',
-  dev_title: '连接设备', dev_lead: '用数据线把 AI Passport 接到电脑上，就能安装玩法、备份和恢复出厂。',
+  dev_title: '连接设备', dev_lead: '用数据线连接可以安装玩法、备份和恢复出厂；用蓝牙连接可以无线安装、给设备配网和编辑通行证。',
   usb_title: '数据线连接', usb_connected: '已连接', usb_unknown: '没认出设备', usb_none: '未连接', usb_checking: '正在检查…',
   usb_none_sub: '用支持数据传输的 USB 线连接 AI Passport。', usb_unknown_sub: '找到了串口，但不像是 AI Passport。', usb_many: n => `连接了 ${n} 台设备，一次只能操作一台。`,
   dev_go_plays: '去玩法社区安装', dev_backup: '备份设备', dev_restore: '恢复出厂', dev_local: '安装本地固件',
   my_devices: '我的设备', my_devices_empty: '在这台电脑上安装、备份或恢复过的设备会显示在这里。', dev_last_play: p => `上次安装：${p}`, dev_seen: d => `上次连接：${d}`, dev_remove: '移除',
-  ble_title: '蓝牙', ble_lead: '无线安装、蓝牙配网和编辑通行证需要用蓝牙连接设备。桌面版暂不支持蓝牙，请先用安卓 App；用数据线能做的事在「工具」页。',
   help_title: '搜不到设备？',
   help_items: ['换一根能传数据的 USB 线（有些线只能充电），直接插在电脑上，不要经过扩展坞。', '设备开着机时一般能直接认出；认不出时，按住 BOOT 键再插上数据线，进入下载模式。', 'Windows 第一次连接时会自动安装驱动，等一会儿再试。Windows 7 需要先安装串口驱动。', 'Linux 用 .deb 安装包时会自动设置串口权限；提示没有权限时重新插拔一次。', '刷机失败、设备无法启动时，可以在「工具」里恢复出厂。'],
-  tools_title: '工具', tools_lead: '用数据线完成安装、备份和恢复。需要蓝牙的功能请使用安卓 App。',
+  tools_title: '工具', tools_lead: '用数据线安装、备份和恢复；用蓝牙编辑通行证、给设备配网。',
   sec_default: 'AI Passport 默认玩法', pill_default: '默认玩法', sec_default_info: '通行证是 AI Passport 的默认玩法：显示名字、职业、头像和图片。',
-  t_edit_passport: '编辑通行证', t_edit_passport_sub: '需要用蓝牙连接，请在安卓 App 的「设备」页编辑。',
+  t_edit_passport: '编辑通行证', t_edit_passport_sub: '在「设备」页用蓝牙连接通行证，换头像、图片和开机音乐。',
   t_passport_back: '用回通行证', t_passport_back_sub: '用数据线恢复出厂，装回通行证。',
   sec_usb: '用数据线安装',
   t_local: '安装本地固件', t_local_sub: '安装电脑里已下载的固件文件（.bin）。',
@@ -22,9 +21,9 @@ Object.assign(I18N.zh, {
   t_backups: '我的备份', t_backups_sub: '查看备份，或写回原来的设备。',
   t_restore: '恢复出厂', t_restore_sub: '装回默认玩法「通行证」，设备身份保持不变。',
   sec_installer: '小程序玩法安装器',
-  t_installer: '安装小程序玩法安装器', t_installer_sub: '用数据线装一次，之后就能用手机无线安装玩法。',
-  t_installer_wifi: '小程序玩法安装器配网', t_installer_wifi_sub: '需要蓝牙：设备进入安装模式后，在安卓 App 的「设备」页连接它再设置 Wi-Fi。',
-  sec_blufi: '蓝牙配网', t_blufi: '蓝牙配网', t_blufi_sub: '需要蓝牙：设备菜单里打开「BLUFI Setup」后，在安卓 App 里把 Wi-Fi 名称和密码发给设备。',
+  t_installer: '安装小程序玩法安装器', t_installer_sub: '用数据线装一次，之后就能用电脑或手机无线安装玩法。',
+  t_installer_wifi: '小程序玩法安装器配网', t_installer_wifi_sub: '设备进入安装模式后，在「设备」页用蓝牙连接它，再设置 Wi-Fi。',
+  sec_blufi: '蓝牙配网', t_blufi: '蓝牙配网', t_blufi_sub: '在设备菜单里打开「BLUFI Setup」，再把 Wi-Fi 名称和密码发给设备。',
   needs_ble: '需要蓝牙', installer_missing: '玩法库里还没有小程序玩法安装器，请先更新玩法库。',
   installer_warn: '装好后设备会进入安装模式，原有玩法和已保存的 Wi-Fi 会被清除。之后可以在手机上无线安装玩法，或在这里恢复出厂。',
   backups_title: '我的备份', backups_lead: '备份保存在备份目录里。写回设备只能写回原来那台设备（按 MAC 地址核对）。', backups_new: '新建备份',
@@ -41,17 +40,16 @@ Object.assign(I18N.zh, {
 });
 Object.assign(I18N.en, {
   nav_device: 'Device', nav_plays: 'Plays', nav_tools: 'Tools',
-  dev_title: 'Connect device', dev_lead: 'Connect AI Passport to this computer with a USB cable to install plays, back it up or restore it.',
+  dev_title: 'Connect device', dev_lead: 'With a USB cable you can install plays, back up the device and restore it. Over Bluetooth you can install wirelessly, set up Wi-Fi and edit the Passport.',
   usb_title: 'USB connection', usb_connected: 'Connected', usb_unknown: 'Unknown device', usb_none: 'Not connected', usb_checking: 'Checking…',
   usb_none_sub: 'Connect AI Passport with a USB cable that carries data.', usb_unknown_sub: "A serial port was found, but it doesn't look like an AI Passport.", usb_many: n => `${n} devices are connected. Connect one at a time.`,
   dev_go_plays: 'Install from the community', dev_backup: 'Back up device', dev_restore: 'Restore default play', dev_local: 'Install local firmware',
   my_devices: 'My devices', my_devices_empty: 'Devices you install, back up or restore on this computer appear here.', dev_last_play: p => `Last installed: ${p}`, dev_seen: d => `Last connected: ${d}`, dev_remove: 'Remove',
-  ble_title: 'Bluetooth', ble_lead: "Wireless install, Bluetooth Wi-Fi setup and editing the Passport need a Bluetooth connection. The desktop app doesn't support Bluetooth yet, so use the Android app for these. Everything you can do with a cable is on the Tools tab.",
   help_title: "Can't find your device?",
   help_items: ['Use a USB cable that carries data (some only charge), plugged straight into the computer rather than a hub.', "A running device is usually found right away. If it isn't, hold BOOT while you plug in the cable to enter download mode.", 'Windows installs a driver the first time; wait a moment and try again. Windows 7 needs the USB serial driver first.', 'The Linux .deb sets up port access. If the app says it has no permission, unplug the device and plug it back in.', "If installing fails or the device won't start, restore the default play from Tools."],
-  tools_title: 'Tools', tools_lead: 'Install, back up and restore with a USB cable. Use the Android app for features that need Bluetooth.',
+  tools_title: 'Tools', tools_lead: 'Install, back up and restore with a USB cable. Edit the Passport and set up Wi-Fi over Bluetooth.',
   sec_default: 'AI Passport default play', pill_default: 'Default play', sec_default_info: "Passport is AI Passport's default play: it shows a name, job title, avatar and picture.",
-  t_edit_passport: 'Edit Passport', t_edit_passport_sub: 'Needs Bluetooth. Edit it on the Device tab of the Android app.',
+  t_edit_passport: 'Edit Passport', t_edit_passport_sub: 'Connect to your Passport over Bluetooth on the Device tab to change the avatar, picture and boot music.',
   t_passport_back: 'Get Passport back', t_passport_back_sub: 'Restore the default play with a USB cable to get Passport back.',
   sec_usb: 'Install with a USB cable',
   t_local: 'Install local firmware', t_local_sub: 'Install a firmware file (.bin) saved on this computer.',
@@ -59,9 +57,9 @@ Object.assign(I18N.en, {
   t_backups: 'My backups', t_backups_sub: 'View backups, or write one back to its device.',
   t_restore: 'Restore default play', t_restore_sub: "Reinstall the default play Passport. The device's identity stays as it is.",
   sec_installer: 'Play Installer',
-  t_installer: 'Install Play Installer', t_installer_sub: 'Install it once with a USB cable, then install plays from your phone wirelessly.',
-  t_installer_wifi: 'Play Installer Wi-Fi setup', t_installer_wifi_sub: 'Needs Bluetooth. When the device is in install mode, connect to it on the Device tab of the Android app and set up Wi-Fi.',
-  sec_blufi: 'Bluetooth Wi-Fi setup', t_blufi: 'Bluetooth Wi-Fi setup', t_blufi_sub: 'Needs Bluetooth. Open "BLUFI Setup" in the device menu, then send the Wi-Fi name and password from the Android app.',
+  t_installer: 'Install Play Installer', t_installer_sub: 'Install it once with a USB cable, then install plays wirelessly from this computer or your phone.',
+  t_installer_wifi: 'Play Installer Wi-Fi setup', t_installer_wifi_sub: 'When the device is in install mode, connect to it over Bluetooth on the Device tab and set up Wi-Fi.',
+  sec_blufi: 'Bluetooth Wi-Fi setup', t_blufi: 'Bluetooth Wi-Fi setup', t_blufi_sub: 'Open "BLUFI Setup" in the device menu, then send the Wi-Fi name and password to the device.',
   needs_ble: 'Needs Bluetooth', installer_missing: "Play Installer isn't in your library yet. Update the library first.",
   installer_warn: 'After installing, the device goes into install mode and its existing plays and saved Wi-Fi are cleared. You can then install plays wirelessly from your phone, or restore the default play here.',
   backups_title: 'My backups', backups_lead: 'Backups are kept in the backup folder. A backup can only be written back to the device it came from (checked by MAC address).', backups_new: 'New backup',
@@ -126,16 +124,17 @@ function rememberDevice(f) {
 /* ---------------- 设备 ---------------- */
 function renderDevice() {
   const devices = knownDevices();
-  const rows = devices.length ? devices.map(d => `<div class="list-row static"><span><b>AI Passport · ${esc(d.mac)}</b><small>${[d.flash, d.last ? t('dev_last_play', pick(d.last)) : '', t('dev_seen', new Date(d.at).toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US'))].filter(Boolean).map(esc).join(' · ')}</small></span><button class="btn ghost small" data-action="forget-device" data-mac="${esc(d.mac)}">${t('dev_remove')}</button></div>`).join('')
-    : `<p class="hint">${t('my_devices_empty')}</p>`;
+  const usbRows = devices.map(d => `<div class="list-row static"><span><b>AI Passport · ${esc(d.mac)}</b><small>${[d.flash, d.last ? t('dev_last_play', pick(d.last)) : '', t('dev_seen', new Date(d.at).toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US'))].filter(Boolean).map(esc).join(' · ')}</small></span><button class="btn ghost small" data-action="forget-device" data-mac="${esc(d.mac)}">${t('dev_remove')}</button></div>`).join('');
+  const bleRows = S.server.ble ? bleSavedRows() : '';
+  const rows = usbRows || bleRows ? bleRows + usbRows : `<p class="hint">${t('my_devices_empty')}</p>`;
   return `<div class="settings tools">
     <h1>${t('dev_title')}</h1><p class="lead">${t('dev_lead')}</p>
     <section class="panel">${usbCard()}
       <div class="buttons"><a class="btn primary" href="${libraryHash()}">${t('dev_go_plays')}</a><a class="btn" href="#/tools/backup">${t('dev_backup')}</a><a class="btn" href="#/tools/restore">${t('dev_restore')}</a><button class="btn ghost" data-action="tool-local">${t('dev_local')}</button></div>
     </section>
+    <section class="panel" id="ble-panel">${blePanel()}</section>
     <section class="panel"><h2>${t('my_devices')}</h2>${rows}</section>
-    <section class="panel"><h2>${t('ble_title')} <span class="pill-s grey">${t('needs_ble')}</span></h2><p>${t('ble_lead')}</p></section>
-    <details class="panel help"><summary>${t('help_title')}</summary><ul>${I18N[lang].help_items.map(x => `<li>${esc(x)}</li>`).join('')}</ul></details>
+    <details class="panel help"><summary>${t('help_title')}</summary><ul>${I18N[lang].help_items.concat(S.server.ble ? I18N[lang].ble_help : []).map(x => `<li>${esc(x)}</li>`).join('')}</ul></details>
   </div>`;
 }
 
@@ -148,12 +147,14 @@ function toolRow(title, sub, attrs, disabled) {
 function renderTools() {
   const sub = parseRoute().tool;
   if (sub === 'backups') return renderBackups();
+  if (sub === 'blufi') return renderBlufi();
   if (sub === 'backup' || sub === 'restore') return renderToolJob(sub);
+  const ble = S.server.ble;
   return `<div class="settings tools">
     <h1>${t('tools_title')}</h1><p class="lead">${t('tools_lead')}</p>
     <section class="panel">${usbCard()}</section>
     <section class="panel list-card"><h2>${t('sec_default')} <span class="pill-s purple">${t('pill_default')}</span></h2><p>${t('sec_default_info')}</p>
-      ${toolRow(t('t_edit_passport'), t('t_edit_passport_sub'), '', true)}
+      ${toolRow(t('t_edit_passport'), t('t_edit_passport_sub'), 'href="#/device"', !ble)}
       ${toolRow(t('t_passport_back'), t('t_passport_back_sub'), 'href="#/tools/restore"')}
     </section>
     <section class="panel list-card"><h2>${t('sec_usb')}</h2>
@@ -164,10 +165,10 @@ function renderTools() {
     </section>
     <section class="panel list-card"><h2>${t('sec_installer')}</h2>
       ${toolRow(t('t_installer'), t('t_installer_sub'), 'data-action="tool-installer"')}
-      ${toolRow(t('t_installer_wifi'), t('t_installer_wifi_sub'), '', true)}
+      ${toolRow(t('t_installer_wifi'), t('t_installer_wifi_sub'), 'href="#/device"', !ble)}
     </section>
     <section class="panel list-card"><h2>${t('sec_blufi')}</h2>
-      ${toolRow(t('t_blufi'), t('t_blufi_sub'), '', true)}
+      ${toolRow(t('t_blufi'), t('t_blufi_sub'), 'href="#/tools/blufi"', !ble)}
     </section>
   </div>`;
 }
