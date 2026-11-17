@@ -58,6 +58,9 @@ type Core struct {
 	index    *library.Index
 	indexDir string
 	onIndex  []func()
+	// dirty marks plays remembered from browsing that index.json does not have yet.
+	dirty     bool
+	saveTimer *time.Timer
 }
 
 // New wires the managers together. stateDir is the private settings folder.
@@ -80,7 +83,7 @@ func (c *Core) Library() library.Library { return library.Library{Root: c.Settin
 // Invalidate drops the cached index after a sync or library move.
 func (c *Core) Invalidate() {
 	c.mu.Lock()
-	c.catalog, c.index, c.indexDir = nil, nil, ""
+	c.catalog, c.index, c.indexDir, c.dirty = nil, nil, "", false
 	hooks := append([]func(){}, c.onIndex...)
 	c.mu.Unlock()
 	for _, f := range hooks {
@@ -94,22 +97,24 @@ func (c *Core) Index() (*library.Index, []byte, error) {
 	lib := c.Library()
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	if c.index != nil && c.indexDir == lib.Root {
-		return c.index, c.catalog, nil
+	if c.index == nil || c.indexDir != lib.Root {
+		if lib.Root == "" {
+			return nil, nil, os.ErrNotExist
+		}
+		idx, err := lib.LoadIndex()
+		if err != nil {
+			return nil, nil, err
+		}
+		c.index, c.catalog, c.indexDir, c.dirty = idx, nil, lib.Root, false
 	}
-	if lib.Root == "" {
-		return nil, nil, os.ErrNotExist
+	if c.catalog == nil {
+		b, err := json.Marshal(c.index)
+		if err != nil {
+			return nil, nil, err
+		}
+		c.catalog = b
 	}
-	idx, err := lib.LoadIndex()
-	if err != nil {
-		return nil, nil, err
-	}
-	b, err := json.Marshal(idx)
-	if err != nil {
-		return nil, nil, err
-	}
-	c.index, c.catalog, c.indexDir = idx, b, lib.Root
-	return idx, b, nil
+	return c.index, c.catalog, nil
 }
 
 // CheckUpdatesInBackground asks the community whether newer plays exist.
@@ -248,14 +253,17 @@ func (c *Core) Play(slug string) (*library.Play, error) {
 	if !library.ValidSlug(slug) {
 		return nil, errors.New("invalid play")
 	}
-	idx, _, err := c.Index()
-	if err != nil {
-		return nil, err
-	}
-	for i := range idx.Plays {
-		if idx.Plays[i].Slug == slug {
-			return &idx.Plays[i], nil
+	if idx, _, err := c.Index(); err == nil {
+		for i := range idx.Plays {
+			if idx.Plays[i].Slug == slug {
+				p := idx.Plays[i]
+				return &p, nil
+			}
 		}
+	}
+	// Plays seen while browsing are cached in their meta.json even before index.json lists them.
+	if p, ok := syncer.CachedPlay(c.Library(), slug); ok {
+		return p, nil
 	}
 	return nil, errors.New("play not found")
 }

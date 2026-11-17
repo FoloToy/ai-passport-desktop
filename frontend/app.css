@@ -55,8 +55,6 @@ img { display: block; }
 .topnav a:hover { background: var(--panel); }
 .topnav a.active { background: var(--green-bg); color: var(--green); }
 .topright { display: flex; align-items: center; gap: 10px; --wails-draggable: no-drag; }
-.lang-toggle { padding: 6px 10px; border-radius: 8px; color: var(--muted); font-size: 12px; letter-spacing: 0.06em; border: 1px solid var(--line); }
-.lang-toggle:hover { color: var(--text); border-color: var(--line-strong); }
 .pill {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 6px 12px; border-radius: 999px; font-size: 12.5px;
@@ -195,7 +193,10 @@ img { display: block; }
 .stats span { display: inline-flex; align-items: center; gap: 5px; }
 .empty { padding: 70px 20px; text-align: center; color: var(--muted); border: 1px dashed var(--line-strong); border-radius: var(--radius); }
 .empty h3 { color: var(--text); margin: 0 0 6px; }
-.sentinel { height: 1px; }
+.sentinel { min-height: 1px; }
+.list-more { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 22px 0; color: var(--muted); font-size: 13px; }
+.empty .btn { margin-top: 14px; }
+.center-page .hint { display: flex; align-items: center; gap: 10px; color: var(--muted); }
 
 /* ---------- modal ---------- */
 .overlay { position: fixed; inset: 0; z-index: 40; background: rgba(0, 0, 0, 0.62); backdrop-filter: blur(3px); display: grid; place-items: center; padding: 24px; }

@@ -87,7 +87,11 @@ type Topic struct {
 	Key  string `json:"key"`
 	Tag  string `json:"tag"`
 	Name Text   `json:"name"`
-	IDs  []int  `json:"ids"`
+	// IDs lists the plays known to belong to the collection. A full download lists
+	// all of them; browsing adds the ones it has seen.
+	IDs []int `json:"ids"`
+	// Count is the collection size reported by the community.
+	Count int `json:"count"`
 }
 
 type Index struct {

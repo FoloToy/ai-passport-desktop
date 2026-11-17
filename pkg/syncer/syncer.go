@@ -113,6 +113,7 @@ type Manager struct {
 	cancel   context.CancelFunc
 	bytes    atomic.Int64
 	avatars  sync.Map
+	assets   sync.Map // in-flight on-demand image downloads
 	metaMu   sync.Mutex
 	throttle throttle
 
@@ -456,17 +457,7 @@ type topicDef struct {
 }
 
 func (m *Manager) fetchTopics(ctx context.Context, first *listResponse, prev *library.Index) []library.Topic {
-	var defs []topicDef
-	for _, t := range first.DiscoveryTags {
-		if t.Enabled && t.Key == "must-play" {
-			defs = append(defs, topicDef{key: t.Key, tag: t.Key, name: t.Name})
-		}
-	}
-	for _, t := range first.DiscoveryTabs {
-		if t.Enabled && t.Visible && strings.HasPrefix(t.Key, "entry:") {
-			defs = append(defs, topicDef{key: strings.TrimPrefix(t.Key, "entry:"), tag: t.Key, name: t.Name})
-		}
-	}
+	defs := topicDefs(first)
 	old := map[string][]int{}
 	if prev != nil {
 		for _, t := range prev.Topics {
@@ -482,7 +473,7 @@ func (m *Manager) fetchTopics(ctx context.Context, first *listResponse, prev *li
 		if ids == nil {
 			ids = []int{}
 		}
-		out = append(out, library.Topic{Key: d.key, Tag: d.tag, Name: d.name, IDs: ids})
+		out = append(out, library.Topic{Key: d.key, Tag: d.tag, Name: d.name, IDs: ids, Count: len(ids)})
 	}
 	return out
 }

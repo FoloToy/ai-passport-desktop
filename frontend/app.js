@@ -12,57 +12,57 @@ const I18N = {
     sidebar_title: '玩法分类', all_plays: '全部玩法', topics: '专题',
     hero_title: '玩法社区', hero_count: '款玩法', hero_sub: '把喜欢的创意，写进你的 AI Passport',
     featured_kicker: 'Curated by AI Passport', featured: '官方精选', featured_badge: '官方精选',
-    tab_all: '全部玩法', search_ph: '搜索玩法名字、简介或作者…',
+    tab_all: '全部玩法', search_ph: '搜索玩法名字…',
     sort_newest: '最新', sort_downloads: '下载最多', sort_hearts: '点赞最多', sort_comments: '讨论最多',
-    results: n => `共 ${n} 款玩法`, developer: '开发者', install: '刷入', not_ready: '未下载', removed: '已下架',
+    results: n => `共 ${n} 款玩法`, developer: '开发者', install: '安装', not_ready: '未下载', removed: '已下架',
     updated_today: '今日更新', updated_yesterday: '昨日更新', updated_days: n => `${n} 天前更新`,
     empty_title: '没有找到玩法', empty_sub: '换个关键词或分类试试',
     detail_title: '玩法详情', tab_intro: '玩法介绍', tab_usage: '使用说明', tab_changelog: '更新日志',
-    nothing_here: '暂无内容', flash_device: '刷入设备', flash_hint: '刷入会覆盖设备上当前的玩法。',
+    nothing_here: '暂无内容', flash_device: '安装到设备', flash_hint: '安装会替换设备上当前的玩法。',
     open_folder: '打开文件夹', open_web: '网页版', firmware: '固件', size: '大小',
-    no_firmware: '固件还没有下载，第一次刷入时会自动下载并保存，下次不用再下载。', removed_note: '该玩法已从社区下架，本地仍保留了一份。',
+    no_firmware: '固件还没有下载。第一次安装时会自动下载并保存，下次安装不用再下载。', removed_note: '该玩法已从社区下架，本地仍保留了一份。',
     downloads: '下载', hearts: '点赞', favorites: '收藏', comments: '评论',
     // onboarding
     welcome_title: '欢迎使用 AI Passport 玩法社区',
-    welcome_sub: '首次使用需要把玩法社区的玩法信息和图片下载到电脑上，之后不联网也能浏览。固件在第一次刷入某个玩法时下载，下载过的会保存下来，下次刷入不用再下载。',
-    folder_label: '玩法存储目录', change: '更改', start_update: '开始更新',
-    fact_plays: '玩法数量', fact_size: '预计占用', fact_free: '可用空间', about_n: n => `约 ${n}`,
+    welcome_sub: '选择一个文件夹保存玩法数据。浏览时只下载你看到的玩法信息和图片，安装时再下载固件；下载过的内容都保存在这里，不联网也能浏览和安装。',
+    folder_label: '玩法存储目录', change: '更改', start_use: '开始使用', fact_free: '可用空间',
     unknown: '未知', path_ph: '输入一个完整的文件夹路径',
     // sync
-    sync_title: '更新玩法库', sync_running: '正在更新…', sync_done: '更新完成', sync_failed: '更新失败', sync_cancelled: '已停止更新',
+    sync_title: '下载完整玩法库', sync_running: '正在下载…', sync_done: '下载完成', sync_failed: '下载失败', sync_cancelled: '已停止下载',
     phase_listing: '正在获取玩法列表', phase_topics: '正在获取专题', phase_planning: '正在检查本地文件',
     phase_catalog: '正在下载玩法信息和图片', phase_firmware: '正在下载固件', phase_indexing: '正在整理玩法库', phase_moving: '正在迁移玩法目录',
     throttled: s => `固件服务器限流中，${s} 后自动继续`, firmware_progress: (a, b) => `固件 ${a} / ${b}`, pill_firmware: '下载固件', pill_wait: '等待服务器',
     browse_while: '玩法信息已就绪，可以先浏览；固件会在后台继续下载。', no_fw_btn: '暂无固件',
     fetch_title: '正在下载这个玩法的固件…', fetch_wait: s => `固件服务器繁忙，请在 ${s} 后重试。`, fetch_queue: '已插队到下载队列最前面…',
     done_count: '已完成', total_count: '总数', failed_count: '失败', downloaded: '已下载', speed: '速度',
-    stop: '停止', close: '关闭', retry_failed: '重新下载失败项', run_in_bg: '后台运行', continue_update: '继续更新',
+    stop: '停止', close: '关闭', retry_failed: '重新下载失败项', run_in_bg: '后台运行', continue_update: '继续下载',
     added: n => `新增 ${n}`, updated: n => `更新 ${n}`, removed_n: n => `下架 ${n}`,
-    sync_pill: '更新中', update_available: '有新玩法', update_now: '立即更新',
-    banner_incomplete: '上次更新没有完成，部分玩法还不能刷入。', banner_update: n => `玩法社区有 ${n} 个新玩法或更新。`,
+    sync_pill: '下载中',
+    offline_banner: n => `无法连接玩法社区，正在显示已保存的 ${n} 款玩法。`, offline_empty: '无法连接玩法社区，电脑上也还没有保存过玩法。请检查网络后重试。',
+    reconnect: '重新连接', refresh_list: '刷新', loading_more: '正在加载…', load_failed: '加载失败', play_missing: '找不到这个玩法。',
     move_title: '迁移玩法目录', moving_pill: '迁移中',
     // flash
-    flash_title: '刷入设备', step_connect: '用 USB 数据线把 AI Passport 连接到电脑，然后选择设备。',
+    flash_title: '安装到设备', step_connect: '用 USB 数据线把 AI Passport 连接到电脑，然后选择设备。',
     searching: '正在查找设备…', no_ports: '没有找到设备。请检查：① 设备已用 USB 线连到电脑；② 数据线能传数据（有些线只能充电）；③ 换一个 USB 口；④ 仍然没有时，按住 BOOT 键再插入 USB。列表会自动刷新。',
     no_passport: '没有找到 AI Passport，下面只有其他串口设备。请插好 AI Passport，列表会自动刷新；不确定时不要选其他设备。',
     r_not_seen: '还没有发现任何 AI Passport。请检查数据线能传数据、换一个 USB 口，或按住 BOOT 键再插入 USB。',
     r_waited: (s, max) => `已等待 ${s} 秒（最多 ${max} 秒）`,
     err_port_permission: '没有权限打开设备的串口。Linux 上请安装 .deb 安装包（会自动设置设备权限），然后重新插拔设备；也可以运行 sudo usermod -aG dialout $USER，注销后重新登录。',
     err_no_device: '没有找到设备：所选的串口已经不在了。请插好设备，点"刷新"后重新选择。',
-    port_recommended: 'AI Passport', refresh: '刷新', start_flash: '开始刷入', cancel: '取消',
-    flash_warn: '刷入过程中请勿拔出设备或关闭本程序。',
+    port_recommended: 'AI Passport', refresh: '刷新', start_flash: '开始安装', cancel: '取消',
+    flash_warn: '安装过程中请勿拔出设备或关闭本程序。',
     stage_checking: '正在校验固件', stage_connecting: '正在连接设备', stage_writing: '正在写入固件',
     stage_verifying: '正在校验写入结果', stage_resetting: '正在重启设备',
-    flash_done: '刷入完成', flash_done_sub: '设备已自动重启，正在进入新玩法。', flash_done_replug: '设备没有自动重启，请拔插一次 USB。', flash_failed: '刷入失败',
+    flash_done: '安装完成', flash_done_sub: '设备已自动重启，正在进入新玩法。', flash_done_replug: '设备没有自动重启，请拔插一次 USB。', flash_failed: '安装失败',
     retry: '重试', done: '完成', log: '详细日志', chip: '芯片', mac: 'MAC', flash_size: 'Flash',
     // settings
     settings_title: '设置', s_library: '玩法存储目录', s_library_sub: '玩法、图片和固件都保存在这里。',
     change_dir: '更改目录', reveal: '在访达中打开', reveal_win: '在资源管理器中打开', usage: '已占用', files: '文件数', free: '可用空间',
-    s_data: '玩法数据', s_data_sub: '从 AI Passport 玩法社区下载最新的玩法。固件在刷入时按需下载，并保存在玩法目录里。',
-    s_advanced: '高级', s_prefetch: '更新玩法库时下载全部固件', s_prefetch_sub: '默认关闭。打开后，“立即更新”会把所有玩法的固件都下载下来（约 3 GB）。固件服务器有下载频率限制，大量下载时会被暂停。只在需要完全离线刷机时打开。', advanced_on: '已显示高级设置', advanced_off: '已隐藏高级设置', on: '开', off: '关', last_sync: '上次更新',
-    never: '从未更新', plays_ready: '已下载固件', check_update: '检查更新', checking: '正在检查…',
-    up_to_date: '已是最新', status: '状态', complete: '完整', incomplete: '未完成',
-    s_language: '语言', lang_auto: '跟随系统', s_about: '关于', version: '版本', worker: '刷机组件',
+    s_data: '玩法数据', s_data_sub: '玩法信息和图片在浏览时按需下载，固件在安装时下载，都保存在玩法目录里。下载过的玩法不联网也能浏览和安装。',
+    s_advanced: '高级', s_full: '下载完整玩法库', s_full_sub: '一次下载全部玩法信息和图片（约 500 MB），适合需要长时间离线使用的电脑。平时不需要，浏览时会自动按需下载。', start_full: '开始下载',
+    s_prefetch: '同时下载全部固件', s_prefetch_sub: '默认关闭。打开后，“下载完整玩法库”会把所有玩法的固件也下载下来（约 3 GB）。固件服务器有下载频率限制，大量下载时会被暂停。只在需要完全离线安装时打开。', advanced_on: '已显示高级设置', advanced_off: '已隐藏高级设置', on: '开', off: '关',
+    never: '从未', plays_cached: '已保存玩法', plays_ready: '已下载固件', last_full: '上次完整下载',
+    s_language: '语言', s_language_sub: '跟随系统时，系统语言是中文就显示中文，否则显示英文。', lang_auto: '跟随系统', s_about: '关于', version: '版本', worker: '安装组件',
     worker_ok: '已就绪', worker_missing: '缺失（请使用完整安装包）', source: '数据来源',
     move_q: '要把现有的玩法一起迁移到新目录吗？', move_yes: '迁移现有玩法', move_no: '只切换目录',
     move_no_sub: '新目录中没有玩法时，需要重新下载。',
@@ -70,19 +70,19 @@ const I18N = {
     // errors
     err_network: '网络连接失败，请检查网络后重试。', err_disk_space: '磁盘空间不足。', err_busy: '有任务正在进行，请稍后再试。',
     err_target: '无法写入所选目录。', err_not_empty: '新目录不是空的，请选择一个空文件夹。', err_path: '目录无效。',
-    err_wrong_chip: '检测到的芯片不是 ESP32-C3，这不是 AI Passport。', err_secure: '设备开启了安全启动或 Flash 加密，无法刷入。',
+    err_wrong_chip: '检测到的芯片不是 ESP32-C3，这不是 AI Passport。', err_secure: '设备开启了安全启动或 Flash 加密，无法安装。',
     err_flash_size: '设备 Flash 容量不足 8 MB。', err_connect: '无法连接设备。请重新插拔数据线后重试；如仍失败，按住 BOOT 键再插入 USB。',
-    err_checksum: '固件校验失败，请重新更新玩法库。', err_image: '固件文件无效。', err_image_chip: '该固件不是为 AI Passport (ESP32-C3) 构建的。',
-    err_worker: '刷机组件不可用。', err_other: '发生错误。', err_no_picker: '请直接输入文件夹路径。',
+    err_checksum: '固件校验失败，请重新安装。', err_image: '固件文件无效。', err_image_chip: '该固件不是为 AI Passport (ESP32-C3) 构建的。',
+    err_worker: '安装组件不可用。', err_other: '发生错误。', err_no_picker: '请直接输入文件夹路径。',
     err_rate_limited: '固件服务器繁忙，请稍后重试。', err_no_firmware: '这个玩法没有可下载的固件。', err_not_ready: '固件还没有下载。',
     // factory restore
     nav_restore: '设备工具', tools_title: '设备工具', tools_lead: '备份或恢复 AI Passport 上的固件。两个工具都会自动找到设备，不用选串口。', restore_title: '恢复出厂',
-    backup_title: '备份固件', backup_lead: '把设备上现有的固件完整读出来，保存到电脑上（8 MB）。只读取，不会改动设备。刷入新玩法或恢复出厂前，可以先备份一份。',
+    backup_title: '备份固件', backup_lead: '把设备上现有的固件完整读出来，保存到电脑上（8 MB）。只读取，不会改动设备。安装新玩法或恢复出厂前，可以先备份一份。',
     backup_start: '开始备份', backup_again: '再备份一次', b_idle_sub: '连接一台 AI Passport 后点“开始备份”；等待连接时按提示拔插一次 USB。',
     b_backup: '正在读取固件', b_backup_sub: '大约需要 1–3 分钟，请保持设备连接', b_verifying: '正在核对备份', b_verifying_sub: '和设备上的内容逐字节比对',
     b_done: '备份完成', b_done_sub: '固件已保存，并与设备上的内容核对一致。', b_failed: '备份没有完成', b_saved_to: '保存位置',
     b_warn: '备份过程中请勿拔出设备。备份只读取设备，不会写入任何内容。', r_busy_backup: '正在备份固件，完成后才能开始其他操作。', r_busy_restore: '正在恢复出厂，完成后才能开始其他操作。',
-    restore_lead: '把 AI Passport 恢复成出厂固件。适用于刷入玩法后无法启动、反复重启，或连接电脑后很快断开的情况。',
+    restore_lead: '把 AI Passport 恢复成出厂固件。适用于安装玩法后无法启动、反复重启，或连接电脑后很快断开的情况。',
     restore_step1: '只连接一台需要恢复的 AI Passport', restore_step2: '点击“一键恢复出厂”；等待连接时，按提示拔插一次 USB',
     restore_start: '一键恢复出厂', restore_confirm: '请确认电脑只连接了一台 AI Passport。开始后请勿拔线，也不要关闭本程序。',
     restore_go: '开始恢复', r_warn: '恢复过程中请勿拔出设备或关闭本程序。', restore_stop: '停止', restore_stopping: '正在安全停止…', restore_again: '再次恢复',
@@ -98,7 +98,7 @@ const I18N = {
     r_done: '恢复出厂成功', r_done_sub: '设备已自动重启。', r_done_replug: '设备没有自动重启，请拔插一次 USB。',
     r_failed: '没有恢复成功', r_failed_sub: '拔插设备后可以再试一次。',
     r_cancelled: '已停止', r_cancelled_sub: '没有写入任何内容。',
-    r_busy_flash: '正在刷入玩法，完成后才能恢复出厂。',
+    r_busy_flash: '正在安装玩法，完成后才能恢复出厂。',
     r_blank_id: '设备的身份区（序列号和密钥）是空的。出厂固件已写入，但设备可能无法联网认证，请联系 FoloToy 并提供 MAC 地址。',
     r_unknown_id: '没有在设备的身份区找到完整的序列号和密钥。如果设备无法联网认证，请联系 FoloToy 并提供 MAC 地址。',
     open_backup: '打开备份文件夹', r_options: '选项', r_backup_dir: '备份位置', r_full: '同时备份整片 Flash（推荐，约 8 MB，多花 1–2 分钟）',
@@ -115,7 +115,7 @@ const I18N = {
     sidebar_title: 'Categories', all_plays: 'All apps', topics: 'Collections',
     hero_title: 'App Library', hero_count: 'apps', hero_sub: 'Put the ideas you love into your AI Passport',
     featured_kicker: 'Curated by AI Passport', featured: 'Staff picks', featured_badge: 'Staff pick',
-    tab_all: 'All apps', search_ph: 'Search by name, description or author…',
+    tab_all: 'All apps', search_ph: 'Search apps by name…',
     sort_newest: 'Newest', sort_downloads: 'Downloads', sort_hearts: 'Most liked', sort_comments: 'Most discussed',
     results: n => `${n} apps`, developer: 'by', install: 'Install', not_ready: 'Not downloaded', removed: 'Removed',
     updated_today: 'Updated today', updated_yesterday: 'Updated yesterday', updated_days: n => `Updated ${n}d ago`,
@@ -126,11 +126,10 @@ const I18N = {
     no_firmware: 'The firmware is not downloaded yet. It is downloaded and kept the first time you install, so later installs need no download.', removed_note: 'This app was removed from the community; a local copy is kept.',
     downloads: 'Downloads', hearts: 'Likes', favorites: 'Saves', comments: 'Comments',
     welcome_title: 'Welcome to the AI Passport App Library',
-    welcome_sub: 'First, download the app info and images from the community to this computer; after that you can browse without a network. Firmware is downloaded the first time you install an app and kept, so the next install needs no download.',
-    folder_label: 'Library folder', change: 'Change', start_update: 'Start download',
-    fact_plays: 'Apps', fact_size: 'Estimated size', fact_free: 'Free space', about_n: n => `about ${n}`,
+    welcome_sub: 'Choose a folder for your app data. Only the apps and images you look at are downloaded, and firmware is downloaded when you install. Everything downloaded is kept here, so you can browse and install it without a network.',
+    folder_label: 'Library folder', change: 'Change', start_use: 'Get started', fact_free: 'Free space',
     unknown: 'Unknown', path_ph: 'Type a full folder path',
-    sync_title: 'Update library', sync_running: 'Updating…', sync_done: 'Update complete', sync_failed: 'Update failed', sync_cancelled: 'Update stopped',
+    sync_title: 'Download the full library', sync_running: 'Downloading…', sync_done: 'Download complete', sync_failed: 'Download failed', sync_cancelled: 'Download stopped',
     phase_listing: 'Fetching the app list', phase_topics: 'Fetching collections', phase_planning: 'Checking local files',
     phase_catalog: 'Downloading app info and images', phase_firmware: 'Downloading firmware', phase_indexing: 'Building the library', phase_moving: 'Moving the library folder',
     throttled: s => `The firmware server is rate limiting; resuming in ${s}`, firmware_progress: (a, b) => `Firmware ${a} / ${b}`, pill_firmware: 'Firmware', pill_wait: 'Waiting',
@@ -139,8 +138,9 @@ const I18N = {
     done_count: 'Done', total_count: 'Total', failed_count: 'Failed', downloaded: 'Downloaded', speed: 'Speed',
     stop: 'Stop', close: 'Close', retry_failed: 'Retry failed items', run_in_bg: 'Run in background', continue_update: 'Continue',
     added: n => `${n} new`, updated: n => `${n} updated`, removed_n: n => `${n} removed`,
-    sync_pill: 'Updating', update_available: 'New apps', update_now: 'Update now',
-    banner_incomplete: 'The last update did not finish; some apps cannot be installed yet.', banner_update: n => `${n} new or updated apps are available.`,
+    sync_pill: 'Downloading',
+    offline_banner: n => `Can't reach the App Library. Showing the ${n} apps saved on this computer.`, offline_empty: "Can't reach the App Library, and no apps are saved on this computer yet. Check your connection and try again.",
+    reconnect: 'Try again', refresh_list: 'Refresh', loading_more: 'Loading…', load_failed: "Couldn't load apps", play_missing: "Couldn't find this app.",
     move_title: 'Move library', moving_pill: 'Moving',
     flash_title: 'Install to device', step_connect: 'Connect your AI Passport with a USB data cable, then pick the device.',
     searching: 'Looking for devices…', no_ports: 'No device found. Check that: ① the device is connected by USB; ② the cable carries data (some only charge); ③ another USB port helps; ④ if not, hold BOOT while plugging in USB. The list refreshes by itself.',
@@ -157,11 +157,11 @@ const I18N = {
     retry: 'Retry', done: 'Done', log: 'Details', chip: 'Chip', mac: 'MAC', flash_size: 'Flash',
     settings_title: 'Settings', s_library: 'Library folder', s_library_sub: 'Apps, images and firmware are stored here.',
     change_dir: 'Change folder', reveal: 'Show in Finder', reveal_win: 'Show in Explorer', usage: 'Used', files: 'Files', free: 'Free space',
-    s_data: 'App data', s_data_sub: 'Download the latest apps from the AI Passport community. Firmware is downloaded when you install an app and kept in the library folder.',
-    s_advanced: 'Advanced', s_prefetch: 'Download all firmware when updating', s_prefetch_sub: 'Off by default. When on, "Update now" downloads the firmware of every app (about 3 GB). The firmware server limits how often you can download, so a large download gets paused. Turn this on only if you need to install apps fully offline.', advanced_on: 'Advanced settings shown', advanced_off: 'Advanced settings hidden', on: 'On', off: 'Off', last_sync: 'Last update',
-    never: 'Never', plays_ready: 'Firmware downloaded', check_update: 'Check for updates', checking: 'Checking…',
-    up_to_date: 'Up to date', status: 'Status', complete: 'Complete', incomplete: 'Incomplete',
-    s_language: 'Language', lang_auto: 'System', s_about: 'About', version: 'Version', worker: 'Flashing component',
+    s_data: 'App data', s_data_sub: 'App info and images are downloaded as you browse, and firmware when you install. Everything is kept in the library folder, so apps you have seen can be browsed and installed without a network.',
+    s_advanced: 'Advanced', s_full: 'Download the full library', s_full_sub: 'Download the info and images of every app at once (about 500 MB), for computers that stay offline for long periods. Usually not needed: apps are downloaded as you browse.', start_full: 'Start download',
+    s_prefetch: 'Include all firmware', s_prefetch_sub: 'Off by default. When on, "Download the full library" also downloads the firmware of every app (about 3 GB). The firmware server limits how often you can download, so a large download gets paused. Turn this on only if you need to install apps fully offline.', advanced_on: 'Advanced settings shown', advanced_off: 'Advanced settings hidden', on: 'On', off: 'Off',
+    never: 'Never', plays_cached: 'Apps saved', plays_ready: 'Firmware downloaded', last_full: 'Last full download',
+    s_language: 'Language', s_language_sub: 'Follow system uses Chinese when your system language is Chinese, and English otherwise.', lang_auto: 'Follow system', s_about: 'About', version: 'Version', worker: 'Install component',
     worker_ok: 'Ready', worker_missing: 'Missing (use the full installer)', source: 'Source',
     move_q: 'Move the existing apps to the new folder?', move_yes: 'Move apps', move_no: 'Only switch folder',
     move_no_sub: 'If the new folder has no apps, download them again.',
@@ -170,8 +170,8 @@ const I18N = {
     err_target: 'Cannot write to the selected folder.', err_not_empty: 'The new folder is not empty. Choose an empty folder.', err_path: 'Invalid folder.',
     err_wrong_chip: 'The detected chip is not ESP32-C3, so this is not an AI Passport.', err_secure: 'Secure Boot or Flash Encryption is enabled; cannot install.',
     err_flash_size: 'The device flash is smaller than 8 MB.', err_connect: 'Cannot connect to the device. Reconnect the cable and retry; if it still fails, hold BOOT while plugging in USB.',
-    err_checksum: 'Firmware check failed. Update the library again.', err_image: 'Invalid firmware file.', err_image_chip: 'This firmware is not built for AI Passport (ESP32-C3).',
-    err_worker: 'The flashing component is unavailable.', err_other: 'Something went wrong.', err_no_picker: 'Type the folder path instead.',
+    err_checksum: 'Firmware check failed. Try installing again.', err_image: 'Invalid firmware file.', err_image_chip: 'This firmware is not built for AI Passport (ESP32-C3).',
+    err_worker: 'The install component is unavailable.', err_other: 'Something went wrong.', err_no_picker: 'Type the folder path instead.',
     err_rate_limited: 'The firmware server is busy. Try again later.', err_no_firmware: 'This app has no downloadable firmware.', err_not_ready: 'Firmware not downloaded yet.',
     // factory restore
     nav_restore: 'Device tools', tools_title: 'Device tools', tools_lead: 'Back up or restore the firmware on an AI Passport. Both tools find the device by themselves; no port to choose.', restore_title: 'Factory restore',
@@ -293,17 +293,23 @@ const showError = e => toast(errText(e.code, e.message), true);
 const S = {
   restore: { full: true, confirm: false, logOpen: false },
   server: null,
+  // Online, the library is loaded like the website: home (featured plays, categories,
+  // collections) first, then one page at a time. Offline it falls back to catalog, the
+  // plays saved in the library folder (index.json), filtered locally.
+  online: null, // null: not known yet
+  homeState: 'idle', // idle | loading | done
+  home: null,
+  list: null, // the current online list, see emptyList
   catalog: null,
   catalogKey: '',
   byId: new Map(),
   bySlug: new Map(),
   view: { cat: 'all', tab: 'all', q: '', sort: 'newest' },
-  limit: 60,
+  limit: 60, // offline: plays rendered so far
   detail: { slug: null, img: 0, tab: 'intro' },
   modal: null, // 'sync' | 'flash' | 'move'
   flash: { slug: null, ports: null, port: '', scanning: false, scanTimer: null },
   pendingDir: '',
-  checking: false,
   advanced: localStorage.getItem('plays-advanced') === '1',
   versionTaps: [],
 };
@@ -315,22 +321,117 @@ function resolveLang() {
   return (navigator.language || 'zh').toLowerCase().startsWith('zh') ? 'zh' : 'en';
 }
 
+// Keep one object per play, so every view of it (featured rail, grid, detail) shares state such as "ready".
+function adopt(p) {
+  const cur = S.bySlug.get(p.slug);
+  if (cur && cur !== p) { Object.assign(cur, p); return cur; }
+  S.bySlug.set(p.slug, p);
+  S.byId.set(p.id, p);
+  return p;
+}
+
+// Offline fallback: the plays saved in the library folder.
 async function loadCatalog() {
   try {
     S.catalog = await api('catalog');
   } catch {
     S.catalog = null;
   }
-  S.byId = new Map();
-  S.bySlug = new Map();
-  if (S.catalog) {
-    for (const p of S.catalog.plays) { S.byId.set(p.id, p); S.bySlug.set(p.slug, p); }
+  if (S.catalog) S.catalog.plays = S.catalog.plays.map(adopt);
+}
+
+const emptyList = key => ({ key, items: [], total: 0, hasMore: true, loading: false, error: null });
+
+function resetData() {
+  S.online = null;
+  S.homeState = 'idle';
+  S.home = null;
+  S.catalog = null;
+  S.list = emptyList(null);
+  S.limit = 60;
+}
+
+// Featured plays, categories and collections first; the grid follows page by page.
+async function loadHome() {
+  if (S.homeState !== 'idle') return;
+  S.homeState = 'loading';
+  try {
+    const home = await api('home');
+    home.featured = home.featured.map(adopt);
+    S.home = home;
+    S.online = true;
+  } catch {
+    S.online = false;
+    await loadCatalog();
+  }
+  S.homeState = 'done';
+  render();
+}
+
+async function goOffline() {
+  S.online = false;
+  if (!S.catalog) await loadCatalog();
+  render();
+}
+
+// Query string for /api/browse: the community's own search, category, collection and sort.
+function listParams(v = S.view) {
+  const p = new URLSearchParams();
+  const topic = key => topicsList().find(x => x.key === key);
+  const inTopic = v.cat.startsWith('topic:');
+  if (inTopic) { const x = topic(v.cat.slice(6)); if (x) p.set('tag', x.tag); }
+  else if (v.cat !== 'all') p.set('category', v.cat);
+  if (!inTopic && v.tab !== 'all') { const x = topic(v.tab); if (x) p.set('tag', x.tag); }
+  const q = v.q.trim();
+  if (q) p.set('q', q);
+  const sort = q && v.sort === 'newest' ? 'relevance' : v.sort;
+  if (sort !== 'newest') p.set('sort', sort);
+  return p.toString();
+}
+
+// Loads the next page of the online list; images load as the cards scroll into view.
+async function loadPage() {
+  const L = S.list;
+  if (!S.online || !L || L.loading || !L.hasMore) return;
+  L.loading = true;
+  L.error = null;
+  updateGrid();
+  try {
+    const r = await api('browse?' + [L.key, 'offset=' + L.items.length].filter(Boolean).join('&'));
+    if (S.list !== L) return;
+    const seen = new Set(L.items.map(p => p.slug));
+    for (const p of r.plays) if (!seen.has(p.slug)) { seen.add(p.slug); L.items.push(adopt(p)); }
+    L.total = r.total;
+    L.hasMore = r.hasMore && r.plays.length > 0;
+  } catch (e) {
+    if (S.list !== L) return;
+    L.loading = false;
+    if (e.code === 'network' && !L.items.length) { goOffline(); return; }
+    L.error = e;
+  }
+  L.loading = false;
+  updateGrid();
+}
+
+const loadingPlays = new Set();
+// A play opened by link (e.g. from "Me") that no list has shown yet: read it from the library.
+async function loadPlay(slug) {
+  if (loadingPlays.has(slug)) return;
+  loadingPlays.add(slug);
+  try {
+    adopt(await api('play?slug=' + encodeURIComponent(slug)));
+    if (S.detail.slug === slug) renderModal();
+  } catch {
+    if (S.detail.slug === slug) { toast(t('play_missing'), true); closeDetail(); }
+  } finally {
+    loadingPlays.delete(slug);
   }
 }
 
 function catalogKey(st) {
   const l = st.library;
-  return [l.dir, l.hasIndex, l.syncedAt || ''].join('|');
+  // Changes when the folder changes or a full download finishes, not while browsing adds plays.
+  return [l.dir, l.syncedAt || ''].join('|');
 }
 
 /* ---------------- routing ---------------- */
@@ -389,10 +490,8 @@ function renderTopRight() {
     const wait = countdown(sy.throttledUntil);
     const label = sy.kind === 'move' ? t('moving_pill') : wait ? `${t('pill_wait')} ${wait}` : sy.phase === 'firmware' ? `${t('pill_firmware')} ${sy.firmwareDone}/${sy.firmwareTotal}` : `${t('sync_pill')} ${pct}%`;
     pill = `<button class="pill ${wait ? 'amber' : 'green'}" data-action="open-sync"><span class="dot"></span>${label}<span class="mini-bar"><i data-w="${pct}"></i></span></button>`;
-  } else if (st.update.available && st.library.hasIndex) {
-    pill = `<button class="pill amber" data-action="start-sync"><span class="dot"></span>${t('update_available')} · ${t('update_now')}</button>`;
   }
-  $('#topright').innerHTML = `${pill}${accountButton()}<button class="lang-toggle" data-action="toggle-lang" title="Language">${lang === 'zh' ? 'EN' : '中文'}</button>`;
+  $('#topright').innerHTML = `${pill}${accountButton()}`;
   applyWidths($('#topright'));
 }
 
@@ -416,9 +515,19 @@ function render() {
     app.innerHTML = renderRestore();
   } else if (r.name === 'me') {
     app.innerHTML = renderMe();
-  } else if (!lib.hasIndex || !S.catalog) {
-    app.innerHTML = S.server.sync.running ? `<div class="center-page"><div class="welcome sync-card" id="sync-inline">${syncBody()}</div></div>` : renderWelcome();
+  } else if (!lib.configured) {
+    app.innerHTML = renderWelcome();
+  } else if (S.online === null) {
+    loadHome();
+    app.innerHTML = `<div class="center-page"><p class="hint"><span class="spinner"></span> ${t('loading')}</p></div>`;
+  } else if (!S.online && !S.catalog) {
+    app.innerHTML = `<div class="center-page"><div class="welcome"><img class="logo" src="/logo.svg" alt=""><p>${t('offline_empty')}</p>
+      <div class="actions"><button class="btn primary large" data-action="reconnect">${t('reconnect')}</button></div></div></div>`;
   } else {
+    if (S.online && (!S.list || S.list.key !== listParams())) {
+      S.list = emptyList(listParams());
+      queueMicrotask(loadPage);
+    }
     const y = window.scrollY;
     app.innerHTML = renderLibrary();
     setupSentinel();
@@ -444,31 +553,35 @@ function renderWelcome() {
     <div class="section-kicker">${t('folder_label')}</div>
     <div class="sp8"></div>
     ${folder}
-    <div class="facts">
-      <div><b>1,200+</b><span>${t('fact_plays')}</span></div>
-      <div><b>${t('about_n', '500 MB')}</b><span>${t('fact_size')}</span></div>
-      <div><b>${lib.free ? fmtBytes(lib.free) : t('unknown')}</b><span>${t('fact_free')}</span></div>
-    </div>
-    ${S.server.sync.phase === 'failed' ? `<div class="notice red">${esc(errText(S.server.sync.errorCode, S.server.sync.error))}</div><div class="sp16"></div>` : ''}
-    <div class="actions"><button class="btn primary large" data-action="welcome-start">${ICON.download} ${t('start_update')}</button></div>
+    <p class="m-note">${t('fact_free')}${lang === 'zh' ? '：' : ': '}${lib.free ? fmtBytes(lib.free) : t('unknown')}</p>
+    <div class="sp16"></div>
+    <div class="actions"><button class="btn primary large" data-action="welcome-start">${t('start_use')}</button></div>
   </div></div>`;
 }
 
 /* ---------------- library ---------------- */
-function topicsList() { return (S.catalog && S.catalog.topics) || []; }
+// Offline, a collection holds the saved plays known to be in it (seen while browsing it).
+const topicMatch = x => { const ids = new Set(x.ids); return p => ids.has(p.id) || (x.key === 'must-play' && p.mustPlay); };
+const topicCount = x => (S.online ? x.count : S.catalog ? S.catalog.plays.filter(p => !p.removed && topicMatch(x)(p)).length : 0);
+function topicsList() {
+  if (S.online && S.home) return S.home.topics;
+  return ((S.catalog && S.catalog.topics) || []).filter(x => topicCount(x) > 0);
+}
+function categoriesList() { return S.online && S.home ? S.home.categories : (S.catalog && S.catalog.categories) || []; }
 function tabTopics() { return topicsList().filter(x => x.key !== 'must-play'); }
 
+// Offline only: search, filter and sort the plays saved in the library.
 function filtered() {
   const v = S.view;
   let list = S.catalog.plays;
   if (v.cat !== 'all') {
     const topic = topicsList().find(x => 'topic:' + x.key === v.cat);
-    if (topic) { const ids = new Set(topic.ids); list = list.filter(p => ids.has(p.id)); }
+    if (topic) list = list.filter(topicMatch(topic));
     else list = list.filter(p => p.category === v.cat);
   }
-  if (v.tab !== 'all') {
+  if (v.tab !== 'all' && !v.cat.startsWith('topic:')) {
     const topic = topicsList().find(x => x.key === v.tab);
-    if (topic) { const ids = new Set(topic.ids); list = list.filter(p => ids.has(p.id)); }
+    if (topic) list = list.filter(topicMatch(topic));
   }
   if (v.q.trim()) {
     const terms = v.q.trim().toLowerCase().split(/\s+/);
@@ -487,15 +600,16 @@ function filtered() {
 }
 
 function categoryName(key) {
-  const c = S.catalog.categories.find(x => x.key === key);
+  const c = categoriesList().find(x => x.key === key);
   return c ? pick(c.name) : key;
 }
 
 function renderLibrary() {
   const v = S.view;
-  const cats = S.catalog.categories;
-  const listed = S.catalog.plays.filter(p => !p.removed).length;
-  const topicItems = topicsList().map(x => `<button class="nav-item ${v.cat === 'topic:' + x.key ? 'active' : ''}" data-action="cat" data-cat="topic:${esc(x.key)}"><i>${x.key === 'must-play' ? '★' : '#'}</i><span>${esc(pick(x.name))}</span><small>${x.ids.length}</small></button>`).join('');
+  const cats = categoriesList();
+  const saved = S.catalog ? S.catalog.plays.filter(p => !p.removed).length : 0;
+  const listed = S.online ? S.home.total : saved;
+  const topicItems = topicsList().map(x => `<button class="nav-item ${v.cat === 'topic:' + x.key ? 'active' : ''}" data-action="cat" data-cat="topic:${esc(x.key)}"><i>${x.key === 'must-play' ? '★' : '#'}</i><span>${esc(pick(x.name))}</span><small>${topicCount(x)}</small></button>`).join('');
   const sidebar = `<aside class="sidebar">
     <h2>${t('sidebar_title')}</h2>
     <button class="nav-item ${v.cat === 'all' ? 'active' : ''}" data-action="cat" data-cat="all"><i>◎</i><span>${t('all_plays')}</span><small>${listed}</small></button>
@@ -504,39 +618,43 @@ function renderLibrary() {
   </aside>`;
 
   const showFeatured = v.cat === 'all' && v.tab === 'all' && !v.q;
-  const list = filtered();
-  const tabs = tabTopics();
+  const tabs = v.cat.startsWith('topic:') ? [] : tabTopics();
   const st = S.server;
   let banner = '';
   if (st.sync.running && st.sync.phase === 'firmware') banner = `<div class="banner green"><p>${t('browse_while')}</p><button class="btn soft small" data-action="open-sync">${t('sync_title')}</button></div>`;
-  else if (!st.sync.running && st.update.available) banner = `<div class="banner"><p>${t('banner_update', st.update.changes)}</p><button class="btn soft small" data-action="start-sync">${t('update_now')}</button></div>`;
-  else if (!st.sync.running && !st.library.complete) banner = `<div class="banner"><p>${t('banner_incomplete')}</p><button class="btn soft small" data-action="start-sync">${t('continue_update')}</button></div>`;
+  else if (!S.online) banner = `<div class="banner"><p>${t('offline_banner', saved)}</p><button class="btn soft small" data-action="reconnect">${t('reconnect')}</button></div>`;
 
   return `<div class="library">${sidebar}<section class="content">
     ${banner}
     <div class="page-head"><div>
       <h1>${t('hero_title')} <small><b>${listed}</b> ${t('hero_count')}</small></h1>
       <p>${t('hero_sub')}</p></div>
+      ${S.online ? `<button class="btn ghost small" data-action="refresh-list">↻ ${t('refresh_list')}</button>` : ''}
     </div>
     ${showFeatured ? renderFeatured() : ''}
-    ${tabs.length ? `<div class="tabs"><button class="${v.tab === 'all' ? 'active' : ''}" data-action="tab" data-tab="all">${t('tab_all')}</button>${tabs.map(x => `<button class="${v.tab === x.key ? 'active' : ''}" data-action="tab" data-tab="${esc(x.key)}">${esc(pick(x.name))}<small>${x.ids.length}</small></button>`).join('')}</div>` : ''}
+    ${tabs.length ? `<div class="tabs"><button class="${v.tab === 'all' ? 'active' : ''}" data-action="tab" data-tab="all">${t('tab_all')}</button>${tabs.map(x => `<button class="${v.tab === x.key ? 'active' : ''}" data-action="tab" data-tab="${esc(x.key)}">${esc(pick(x.name))}<small>${topicCount(x)}</small></button>`).join('')}</div>` : ''}
     <div class="filters">
       <label class="search">${ICON.search}<input id="search" type="search" value="${esc(v.q)}" placeholder="${esc(t('search_ph'))}" autocomplete="off"></label>
       <div class="segmented">${['newest', 'downloads', 'hearts', 'comments'].map(k => `<button class="${v.sort === k ? 'active' : ''}" data-action="sort" data-sort="${k}">${t('sort_' + k)}</button>`).join('')}</div>
     </div>
-    ${v.cat !== 'all' || v.tab !== 'all' || v.q ? `<div class="result-line">${t('results', list.length)}</div>` : ''}
-    <div id="grid-wrap">${renderGrid(list)}</div>
+    <div class="result-line" ${v.cat !== 'all' || v.tab !== 'all' || v.q ? '' : 'hidden'}>${resultText()}</div>
+    <div id="grid-wrap">${renderGrid()}</div>
   </section></div>`;
 }
 
-function renderFeatured() {
-  let ids = S.catalog.recommendations || [];
+function featuredPlays() {
+  if (S.online) return S.home.featured.filter(p => !p.removed).slice(0, 12);
+  const ids = S.catalog.recommendations || [];
   let plays = ids.map(id => S.byId.get(id)).filter(p => p && !p.removed);
   if (plays.length < 4) {
     const must = topicsList().find(x => x.key === 'must-play');
     if (must) plays = plays.concat(must.ids.map(id => S.byId.get(id)).filter(p => p && !p.removed && !plays.includes(p)));
   }
-  plays = plays.slice(0, 12);
+  return plays.slice(0, 12);
+}
+
+function renderFeatured() {
+  const plays = featuredPlays();
   if (!plays.length) return '';
   return `<section class="featured">
     <div class="section-title"><div><div class="section-kicker">${t('featured_kicker')}</div><h2>${t('featured')}</h2></div></div>
@@ -594,9 +712,41 @@ function renderCard(p) {
   </article>`;
 }
 
-function renderGrid(list) {
-  if (!list.length) return `<div class="empty"><h3>${t('empty_title')}</h3><p>${t('empty_sub')}</p></div>`;
-  return `<div class="grid" id="grid">${list.slice(0, S.limit).map(renderCard).join('')}</div>${list.length > S.limit ? '<div class="sentinel" id="sentinel"></div>' : ''}`;
+// The plays to show: online the pages loaded so far, offline the saved plays filtered locally.
+function currentList() {
+  if (S.online) {
+    const L = S.list || emptyList(null);
+    return { items: L.items, total: L.total, hasMore: L.hasMore, loading: L.loading, error: L.error, pending: !L.items.length && L.hasMore && !L.error };
+  }
+  const all = S.catalog ? filtered() : [];
+  return { items: all.slice(0, S.limit), total: all.length, hasMore: all.length > S.limit };
+}
+
+function resultText() {
+  const L = currentList();
+  return L.pending ? '' : t('results', L.total);
+}
+
+function renderGrid() {
+  const L = currentList();
+  if (!L.items.length) {
+    if (L.pending) return `<div class="list-more"><span class="spinner"></span>${t('loading_more')}</div>`;
+    if (L.error) return `<div class="empty"><h3>${t('load_failed')}</h3><p>${esc(errText(L.error.code, L.error.message))}</p><button class="btn" data-action="load-more">${t('retry')}</button></div>`;
+    return `<div class="empty"><h3>${t('empty_title')}</h3><p>${t('empty_sub')}</p></div>`;
+  }
+  let more = '';
+  if (L.error) more = `<div class="list-more"><span>${t('load_failed')}</span><button class="btn small" data-action="load-more">${t('retry')}</button></div>`;
+  else if (L.hasMore) more = `<div class="sentinel list-more" id="sentinel">${L.loading ? `<span class="spinner"></span>${t('loading_more')}` : ''}</div>`;
+  return `<div class="grid" id="grid">${L.items.map(renderCard).join('')}</div>${more}`;
+}
+
+function updateGrid() {
+  const wrap = $('#grid-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = renderGrid();
+  const line = $('.result-line');
+  if (line) line.textContent = resultText();
+  setupSentinel();
 }
 
 let observer = null;
@@ -605,24 +755,28 @@ function setupSentinel() {
   const el = $('#sentinel');
   if (!el) return;
   observer = new IntersectionObserver(entries => {
-    if (entries.some(e => e.isIntersecting)) {
-      S.limit += 60;
-      $('#grid-wrap').innerHTML = renderGrid(filtered());
-      setupSentinel();
-    }
+    if (!entries.some(e => e.isIntersecting)) return;
+    if (S.online) { loadPage(); return; }
+    S.limit += 60;
+    updateGrid();
   }, { rootMargin: '600px' });
   observer.observe(el);
 }
 
+// Search changed: start the list again (online, the server searches).
 function refreshGrid() {
   S.limit = 60;
-  const wrap = $('#grid-wrap');
-  if (!wrap) return render();
-  const list = filtered();
-  wrap.innerHTML = renderGrid(list);
+  if (!$('#grid-wrap')) return render();
+  if (S.online) {
+    S.list = emptyList(listParams());
+    loadPage();
+  } else {
+    updateGrid();
+  }
   const line = $('.result-line');
-  if (line) line.textContent = t('results', list.length);
-  setupSentinel();
+  if (line) line.hidden = !(S.view.cat !== 'all' || S.view.tab !== 'all' || S.view.q);
+  const featured = $('.featured');
+  if (featured) featured.hidden = !!S.view.q;
 }
 
 /* ---------------- markdown-ish text ---------------- */
@@ -652,7 +806,7 @@ function prose(text) {
 /* ---------------- detail modal ---------------- */
 function renderDetail() {
   const p = S.bySlug.get(S.detail.slug);
-  if (!p) return '';
+  if (!p) { loadPlay(S.detail.slug); return ''; }
   const images = p.gallery.length ? p.gallery : [p.cover || p.thumb].filter(Boolean);
   const idx = Math.min(S.detail.img, Math.max(0, images.length - 1));
   const tabBody = { intro: pick(p.description), usage: pick(p.instructions), changelog: pick(p.changelog) }[S.detail.tab];
@@ -1027,10 +1181,6 @@ function renderSettings() {
   const st = S.server;
   const lib = st.library;
   const reveal = st.platform === 'windows' ? t('reveal_win') : t('reveal');
-  const up = st.update;
-  let updateLine = '';
-  if (S.checking || up.checking) updateLine = t('checking');
-  else if (up.checkedAt && up.checkedAt[0] !== '0') updateLine = up.error ? errText('network') : up.available ? t('banner_update', up.changes) : t('up_to_date');
   return `<div class="settings">
     <h1>${t('settings_title')}</h1>
     <section class="panel">
@@ -1047,22 +1197,21 @@ function renderSettings() {
     <section class="panel">
       <h2>${t('s_data')}</h2><p>${t('s_data_sub')}</p>
       <dl class="kv">
-        <dt>${t('last_sync')}</dt><dd>${lib.hasIndex ? fmtTime(lib.syncedAt) : t('never')}</dd>
-        <dt>${t('plays_ready')}</dt><dd>${lib.hasIndex ? `${lib.ready} / ${lib.plays}` : '—'}</dd>
-        <dt>${t('status')}</dt><dd>${lib.hasIndex ? (lib.complete ? t('complete') : t('incomplete')) : '—'}</dd>
+        <dt>${t('plays_cached')}</dt><dd>${lib.hasIndex ? lib.plays : 0}</dd>
+        <dt>${t('plays_ready')}</dt><dd>${lib.hasIndex ? lib.ready : 0}</dd>
+        ${lib.syncedAt ? `<dt>${t('last_full')}</dt><dd>${fmtTime(lib.syncedAt)}</dd>` : ''}
       </dl>
-      <div class="buttons">
-        <button class="btn" data-action="check-update" ${st.sync.running || !lib.hasIndex ? 'disabled' : ''}>${t('check_update')}</button>
-        <button class="btn primary" data-action="start-sync" ${st.sync.running || !lib.dir ? 'disabled' : ''}>${t('update_now')}</button>
-        <span class="inline-note">${esc(updateLine)}</span>
-      </div>
     </section>
     <section class="panel">
-      <h2>${t('s_language')}</h2>
+      <h2>${t('s_language')}</h2><p>${t('s_language_sub')}</p>
       <div class="segmented mt10">${[['auto', t('lang_auto')], ['zh', '中文'], ['en', 'English']].map(([k, label]) => `<button class="${st.language === k ? 'active' : ''}" data-action="set-lang" data-lang="${k}">${label}</button>`).join('')}</div>
     </section>
     ${S.advanced ? `<section class="panel">
       <h2>${t('s_advanced')}</h2>
+      <div class="setting-row">
+        <div><b>${t('s_full')}</b><p>${t('s_full_sub')}</p></div>
+        <button class="btn" data-action="start-sync" ${st.sync.running || st.flash.active || !lib.dir ? 'disabled' : ''}>${t('start_full')}</button>
+      </div>
       <div class="setting-row">
         <div><b>${t('s_prefetch')}</b><p>${t('s_prefetch_sub')}</p></div>
         <div class="segmented">${[[false, t('off')], [true, t('on')]].map(([v, label]) => `<button class="${!!st.prefetch === v ? 'active' : ''}" data-action="set-prefetch" data-on="${v}">${label}</button>`).join('')}</div>
@@ -1102,7 +1251,7 @@ async function chooseDir() {
 async function startSync() {
   try {
     await api('sync/start', {});
-    S.modal = S.server.library.hasIndex ? 'sync' : null;
+    S.modal = 'sync';
     await poll();
     renderModal();
   } catch (e) { showError(e); }
@@ -1118,7 +1267,6 @@ const actions = {
   'img': el => { S.detail.img = Number(el.dataset.i); renderModal(); },
   'detail-tab': el => { S.detail.tab = el.dataset.tab; renderModal(); },
   'rail': el => { const r = $('#rail'); if (r) r.scrollBy({ left: Number(el.dataset.dir) * r.clientWidth, behavior: 'smooth' }); },
-  'toggle-lang': async () => { await setLanguage(lang === 'zh' ? 'en' : 'zh'); },
   'set-lang': async el => { await setLanguage(el.dataset.lang); },
   // Hidden settings: tap the version number 5 times within 3 seconds to show or hide them.
   'version-tap': () => {
@@ -1143,17 +1291,20 @@ const actions = {
   'start-sync': () => startSync(),
   'cancel-sync': async () => { await api('sync/cancel', {}).catch(showError); poll(); },
   'close-modal': () => closeModal(),
+  // First run only chooses the folder; plays are downloaded as the user browses.
   'welcome-start': async () => {
     try {
       const lib = S.server.library;
-      const dir = S.server.native ? (S.pendingDir || lib.dir || lib.defaultDir) : ($('#dir-input') || {}).value;
-      if (dir && dir !== lib.dir) await api('library/set', { dir, mode: 'switch' });
-      await poll();
-      if (S.server.library.hasIndex) { await loadCatalog(); render(); return; }
-      await startSync();
-      render();
+      const dir = (S.server.native ? (S.pendingDir || lib.dir || lib.defaultDir) : (($('#dir-input') || {}).value || '')).trim();
+      if (!dir) return;
+      if (dir !== lib.dir || !lib.configured) await api('library/set', { dir, mode: 'switch' });
+      resetData();
+      await poll(true);
     } catch (e) { showError(e); }
   },
+  'reconnect': () => { resetData(); render(); },
+  'refresh-list': () => { resetData(); render(); },
+  'load-more': () => { if (S.list) S.list.error = null; if (S.online) loadPage(); else render(); },
   'choose-dir-welcome': async () => {
     try { const d = await chooseDir(); if (d) { S.pendingDir = d; render(); } } catch (e) { showError(e); }
   },
@@ -1162,7 +1313,7 @@ const actions = {
       const d = await chooseDir();
       if (!d || d === S.server.library.dir) return;
       S.pendingDir = d;
-      if (S.server.library.hasIndex) { S.modal = 'move'; renderModal(); return; }
+      if (S.server.library.hasIndex || S.server.library.plays) { S.modal = 'move'; renderModal(); return; }
       await api('library/set', { dir: d, mode: 'switch' });
       toast(t('dir_changed'));
       await poll(true);
@@ -1181,11 +1332,6 @@ const actions = {
   'reveal-library': () => api('reveal', { target: 'library' }).catch(showError),
   'reveal-play': el => api('reveal', { target: 'play', slug: el.dataset.slug }).catch(showError),
   'open-web': el => api('open-web', { slug: el.dataset.slug }).catch(showError),
-  'check-update': async () => {
-    S.checking = true; render();
-    try { await api('update/check', {}); await new Promise(r => setTimeout(r, 1200)); } catch (e) { showError(e); }
-    S.checking = false; await poll(); render();
-  },
   'flash': el => {
     if (S.server.flash.active && S.server.flash.kind !== 'flash') { toast(t('err_busy'), true); return; }
     S.flash.slug = el.dataset.slug;
@@ -1273,7 +1419,7 @@ document.addEventListener('input', ev => {
     S.view.q = ev.target.value;
     history.replaceState(null, '', libraryHash());
     refreshGrid();
-  }, 160);
+  }, 300);
 });
 document.addEventListener('keydown', ev => {
   if (ev.key !== 'Escape') return;
@@ -1302,8 +1448,9 @@ async function poll(forceRender) {
   const key = catalogKey(st);
   const catalogChanged = key !== S.catalogKey;
   if (catalogChanged) {
+    // Another folder, or a full download finished: load the library again.
+    if (S.catalogKey) resetData();
     S.catalogKey = key;
-    await loadCatalog();
   }
   if (st.ready !== S.readyVersion) {
     S.readyVersion = st.ready;
@@ -1318,15 +1465,10 @@ async function poll(forceRender) {
   const syncFinished = lastSyncRunning && !st.sync.running;
   lastSyncRunning = st.sync.running;
   const r = parseRoute();
-  const stillWelcome = !st.library.hasIndex && r.name === 'library';
   if (first || forceRender || catalogChanged || syncFinished || (prev && prev.language !== st.language)) {
     render();
   } else {
     renderTopRight();
-    if (stillWelcome && st.sync.running) {
-      const inline = $('#sync-inline');
-      if (inline) { inline.innerHTML = syncBody(); applyWidths(inline); } else render();
-    }
     if (S.modal === 'sync' || S.modal === 'flash') updateModal();
     if (r.name === 'restore') updateRestore();
   }
@@ -1334,5 +1476,6 @@ async function poll(forceRender) {
   pollTimer = setTimeout(poll, busy ? 700 : 4000);
 }
 
+resetData();
 applyRoute();
 poll(true);

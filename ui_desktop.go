@@ -23,7 +23,10 @@ func runUI(server *desktop.Server, flash *flasher.Manager, sync *syncer.Manager)
 		Assets:      application.AssetOptions{Handler: server},
 		Mac:         application.MacOptions{ApplicationShouldTerminateAfterLastWindowClosed: true},
 		ShouldQuit:  func() bool { return !flash.Active() },
-		OnShutdown:  sync.Cancel,
+		OnShutdown: func() {
+			sync.Cancel()
+			_ = server.FlushIndex()
+		},
 	})
 	window := app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title: appTitle, Width: 1280, Height: 860, MinWidth: 980, MinHeight: 680, URL: "/",
@@ -41,7 +44,7 @@ func runUI(server *desktop.Server, flash *flasher.Manager, sync *syncer.Manager)
 	window.OnWindowEvent(events.Common.WindowClosing, func(e *application.WindowEvent) {
 		if flash.Active() {
 			e.Cancel()
-			app.Dialog.Info().SetTitle("正在操作设备 / Device busy").SetMessage("请等待刷机或恢复出厂完成后再关闭窗口，否则设备可能无法启动。\nWait for flashing or the factory restore to finish before closing.").Show()
+			app.Dialog.Info().SetTitle("正在操作设备 / Device busy").SetMessage("请等待安装玩法或恢复出厂完成后再关闭窗口，否则设备可能无法启动。\nWait for the app install or the factory restore to finish before closing.").Show()
 		}
 	})
 	app.Menu.Set(application.DefaultApplicationMenu())

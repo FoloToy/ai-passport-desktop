@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/FoloToy/ai-passport-desktop/pkg/library"
@@ -105,6 +106,7 @@ type listResponse struct {
 		Total   int  `json:"total"`
 		HasMore bool `json:"hasMore"`
 	} `json:"pagination"`
+	AllTotal       int            `json:"allTotal"`
 	CategoryCounts map[string]int `json:"categoryCounts"`
 	DiscoveryTags  []discoveryTag `json:"discoveryTags"`
 	DiscoveryTabs  []discoveryTab `json:"discoveryTabs"`
@@ -226,8 +228,25 @@ func retryLoop(ctx context.Context, retry429 bool, fn func() error) error {
 	return err
 }
 
-// open issues a GET and returns the body for a 200 response.
-func (c *Client) open(ctx context.Context, ref string) (*http.Response, error) {
+// The community counts firmware downloads. Every request to its download endpoint says
+// why it is made: PurposeFlash when the user is installing that play onto a device,
+// PurposeSync for background or bulk fetches, which the server leaves out of the statistics.
+const (
+	PurposeHeader = "X-AI-Passport-Download-Purpose"
+	PurposeFlash  = "flash"
+	PurposeSync   = "sync"
+)
+
+// isDownloadPath reports whether ref points at the community's counted download endpoint.
+func isDownloadPath(u string) bool {
+	p, err := url.Parse(u)
+	return err == nil && strings.HasPrefix(p.Path, "/api/download/")
+}
+
+// open issues a GET and returns the body for a 200 response. purpose is sent with
+// firmware downloads; a download request without one is marked PurposeSync so that
+// nothing the user did not ask to install is ever counted.
+func (c *Client) open(ctx context.Context, ref, purpose string) (*http.Response, error) {
 	u, err := c.absolute(ref)
 	if err != nil {
 		return nil, err
@@ -237,6 +256,12 @@ func (c *Client) open(ctx context.Context, ref string) (*http.Response, error) {
 		return nil, err
 	}
 	req.Header.Set("User-Agent", c.UserAgent)
+	if isDownloadPath(u) {
+		if purpose != PurposeFlash {
+			purpose = PurposeSync
+		}
+		req.Header.Set(PurposeHeader, purpose)
+	}
 	resp, err := c.HTTP.Do(req)
 	if err != nil {
 		return nil, err
@@ -249,22 +274,36 @@ func (c *Client) open(ctx context.Context, ref string) (*http.Response, error) {
 }
 
 func (c *Client) getJSON(ctx context.Context, ref string, v any) error {
-	return withRetry(ctx, func() error {
-		resp, err := c.open(ctx, ref)
-		if err != nil {
-			return err
-		}
-		defer resp.Body.Close()
-		return json.NewDecoder(io.LimitReader(resp.Body, 64<<20)).Decode(v)
-	})
+	return withRetry(ctx, func() error { return c.getJSONOnce(ctx, ref, v) })
+}
+
+// getJSONOnce makes a single attempt. The UI uses it for requests the user is waiting
+// on, so that without a network it can switch to the saved plays at once.
+func (c *Client) getJSONOnce(ctx context.Context, ref string, v any) error {
+	resp, err := c.open(ctx, ref, "")
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return json.NewDecoder(io.LimitReader(resp.Body, 64<<20)).Decode(v)
 }
 
 func (c *Client) page(ctx context.Context, q url.Values, offset int) (*listResponse, error) {
+	return c.pageN(ctx, q, offset, pageSize, true)
+}
+
+// pageN fetches limit plays (at most pageSize) starting at offset; retry chooses
+// between getJSON and getJSONOnce.
+func (c *Client) pageN(ctx context.Context, q url.Values, offset, limit int, retry bool) (*listResponse, error) {
 	q = cloneValues(q)
-	q.Set("limit", strconv.Itoa(pageSize))
+	q.Set("limit", strconv.Itoa(min(max(limit, 1), pageSize)))
 	q.Set("offset", strconv.Itoa(offset))
+	get := c.getJSONOnce
+	if retry {
+		get = c.getJSON
+	}
 	var r listResponse
-	if err := c.getJSON(ctx, "/api/plays?"+q.Encode(), &r); err != nil {
+	if err := get(ctx, "/api/plays?"+q.Encode(), &r); err != nil {
 		return nil, err
 	}
 	if !r.OK {

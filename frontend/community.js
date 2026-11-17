@@ -19,7 +19,7 @@ Object.assign(I18N.zh, {
   c_pending: '审核中', c_reply: '回复', c_replying: n => `回复 ${n}`, c_cancel: '取消', c_delete: '删除', c_deleted: '已删除', c_author: '作者',
   c_confirm_delete: '确定删除这条评论吗？', c_login_to_comment: '登录后可以发表评论', c_avg: (a, n) => `${a} 分 · ${n} 人评价`,
   me_title: '我的', me_login_lead: '登录后可以点赞、收藏、评论，并在电脑和手机上同步你的收藏。',
-  me_fav: '收藏', me_likes: '点赞', me_history: '刷机记录', me_empty: '这里还没有内容。', me_unavailable: '已下架',
+  me_fav: '收藏', me_likes: '点赞', me_history: '安装记录', me_empty: '这里还没有内容。', me_unavailable: '已下架',
   me_open_web: '在官网管理账号', loading: '正在加载…',
 });
 Object.assign(I18N.en, {
@@ -398,7 +398,7 @@ function meItem(it) {
   const title = local ? pick(local.title) : pick(it.title || (it.play && it.play.title)) || slug || '—';
   const when = it.createdAt || it.installedAt || it.created_at || '';
   const img = local && (local.thumb || local.cover) ? `<img src="${media(local.thumb || local.cover)}" alt="">` : '<span></span>';
-  return `<button class="me-item" ${local ? `data-action="open-play" data-slug="${esc(local.slug)}"` : 'disabled'}>${img}<b>${esc(title)}</b>${!local || it.available === false ? `<small>${t('me_unavailable')}</small>` : ''}${when ? `<small>${esc(new Date(when).toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US'))}</small>` : ''}</button>`;
+  return `<button class="me-item" ${local ? `data-action="open-play" data-slug="${esc(local.slug)}"` : 'disabled'}>${img}<b>${esc(title)}</b>${it.available === false ? `<small>${t('me_unavailable')}</small>` : ''}${when ? `<small>${esc(new Date(when).toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US'))}</small>` : ''}</button>`;
 }
 
 async function loadMe() {

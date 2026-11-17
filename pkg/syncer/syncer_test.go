@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -36,10 +37,12 @@ type fakeSite struct {
 	limitOnce map[string]bool // slug -> return 429 once
 	downloads atomic.Int32
 	media     atomic.Int32
+	purposes  map[string][]string // slug -> X-AI-Passport-Download-Purpose of each firmware request
+	lists     []url.Values        // query of each /api/plays request
 }
 
 func newFakeSite(n int) *fakeSite {
-	s := &fakeSite{firmware: map[string][]byte{}, limitOnce: map[string]bool{}}
+	s := &fakeSite{firmware: map[string][]byte{}, limitOnce: map[string]bool{}, purposes: map[string][]string{}}
 	for i := 1; i <= n; i++ {
 		slug := fmt.Sprintf("play-%d", i)
 		img := fakeImage(byte(i), 4096+i)
@@ -70,13 +73,25 @@ func (s *fakeSite) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	switch {
+	case r.URL.Path == "/api/plays/recommendations":
+		_ = json.NewEncoder(w).Encode(map[string]any{"ok": true, "plays": s.plays[1:2]})
 	case r.URL.Path == "/api/plays":
 		q := r.URL.Query()
+		s.lists = append(s.lists, q)
 		limit, _ := strconv.Atoi(q.Get("limit"))
 		offset, _ := strconv.Atoi(q.Get("offset"))
 		list := s.plays
 		if q.Get("tag") == "entry:family" {
 			list = s.plays[:1]
+		}
+		if c := q.Get("category"); c != "" {
+			var only []map[string]any
+			for _, p := range list {
+				if p["categoryKey"] == c {
+					only = append(only, p)
+				}
+			}
+			list = only
 		}
 		end := min(offset+limit, len(list))
 		page := []map[string]any{}
@@ -103,6 +118,7 @@ func (s *fakeSite) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		s.downloads.Add(1)
+		s.purposes[slug] = append(s.purposes[slug], r.Header.Get(PurposeHeader))
 		_, _ = w.Write(s.firmware[slug])
 	case len(r.URL.Path) > len("/api/media/") && r.URL.Path[:len("/api/media/")] == "/api/media/", len(r.URL.Path) > len("/api/avatars/") && r.URL.Path[:len("/api/avatars/")] == "/api/avatars/":
 		s.media.Add(1)
@@ -169,6 +185,16 @@ func TestFullThenIncrementalSync(t *testing.T) {
 	if got := site.downloads.Load(); got != 7 {
 		t.Fatalf("expected 7 firmware downloads, got %d", got)
 	}
+	// "Download all firmware" is a bulk fetch: every request is marked sync, including the retried one.
+	site.mu.Lock()
+	for slug, got := range site.purposes {
+		for _, purpose := range got {
+			if purpose != PurposeSync {
+				t.Errorf("%s bulk download purpose %q", slug, purpose)
+			}
+		}
+	}
+	site.mu.Unlock()
 
 	// Second run: nothing changed, so nothing is downloaded again.
 	media := site.media.Load()
@@ -283,6 +309,12 @@ func TestFetchOneOnDemand(t *testing.T) {
 	}
 	if slugs, _ := m.Ready(); len(slugs) != 1 || slugs[0] != "play-1" {
 		t.Fatalf("ready overlay: %v", slugs)
+	}
+	// Installing is the only download the community should count.
+	site.mu.Lock()
+	defer site.mu.Unlock()
+	if got := site.purposes["play-1"]; len(got) != 1 || got[0] != PurposeFlash {
+		t.Fatalf("on-demand download purpose: %v", got)
 	}
 }
 

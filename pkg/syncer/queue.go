@@ -123,9 +123,11 @@ func (m *Manager) runFirmwareQueue(ctx context.Context, lib library.Library, ite
 				if p == nil {
 					return
 				}
+				// A play moved to the front because the user is installing it counts as an install.
+				purpose := m.purposeFor(p.Slug)
 				title := p.Title.Zh
 				m.set(func(s *State) { s.Current = append(s.Current, title) })
-				err := m.fetchFirmware(ctx, lib, p)
+				err := m.fetchFirmware(ctx, lib, p, purpose)
 				m.set(func(s *State) { s.Current = removeOne(s.Current, title) })
 				if ra, limited := IsRateLimited(err); limited {
 					until := m.throttle.hit(ra)
@@ -161,13 +163,14 @@ func (m *Manager) runFirmwareQueue(ctx context.Context, lib library.Library, ite
 	wg.Wait()
 }
 
-// fetchFirmware downloads, verifies and records one firmware image.
-func (m *Manager) fetchFirmware(ctx context.Context, lib library.Library, p *remotePlay) error {
+// fetchFirmware downloads, verifies and records one firmware image. purpose is
+// PurposeFlash when the user is installing this play, PurposeSync otherwise.
+func (m *Manager) fetchFirmware(ctx context.Context, lib library.Library, p *remotePlay, purpose string) error {
 	fw := p.Firmware
 	verify := func(tmp string) error {
 		return firmware.Verify(tmp, firmware.Expect{Size: fw.Size, SHA256: fw.SHA256})
 	}
-	if err := m.download(ctx, lib, fw.URL, lib.FirmwarePath(p.Slug), firmware.MaxSize, verify, false); err != nil {
+	if err := m.download(ctx, lib, fw.URL, lib.FirmwarePath(p.Slug), firmware.MaxSize, verify, false, purpose); err != nil {
 		return err
 	}
 	if err := m.updateMeta(lib, p.Slug, nil, func(l *localState) {
@@ -179,6 +182,16 @@ func (m *Manager) fetchFirmware(ctx context.Context, lib library.Library, p *rem
 	}
 	m.markReady(p.Slug)
 	return nil
+}
+
+// purposeFor returns PurposeFlash while the user waits to install slug, PurposeSync otherwise.
+func (m *Manager) purposeFor(slug string) string {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if m.fetch.Running && m.fetch.Slug == slug {
+		return PurposeFlash
+	}
+	return PurposeSync
 }
 
 func (m *Manager) fetchDone(slug string, err error) {
@@ -195,7 +208,8 @@ func (m *Manager) fetchDone(slug string, err error) {
 	}
 }
 
-// FetchOne downloads a single play's firmware now, e.g. right before flashing.
+// FetchOne downloads a single play's firmware now because the user is installing it,
+// so the request is marked PurposeFlash.
 // During a sync it moves the play to the front of the firmware queue instead.
 func (m *Manager) FetchOne(root, slug string) error {
 	lib := library.Library{Root: root}
@@ -252,7 +266,7 @@ func (m *Manager) fetchAlone(lib library.Library, p *remotePlay) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
-	err := m.fetchFirmware(ctx, lib, p)
+	err := m.fetchFirmware(ctx, lib, p, PurposeFlash)
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	switch ra, limited := IsRateLimited(err); {
