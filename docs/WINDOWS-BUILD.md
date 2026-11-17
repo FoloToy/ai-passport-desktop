@@ -88,6 +88,6 @@ powershell -ExecutionPolicy Bypass -File scripts\package-windows.ps1
   ```sh
   go run github.com/tc-hib/go-winres@v0.3.3 simply --icon assets/icon.png --manifest gui \
     --product-name "AI Passport 玩法社区" --file-description "AI Passport 玩法社区" --copyright FoloToy \
-    --product-version 0.7.0.0 --file-version 0.7.0.0 --original-filename AIPassportPlays.exe --arch amd64,arm64,386
+    --product-version 0.8.0.0 --file-version 0.8.0.0 --original-filename AIPassportPlays.exe --arch amd64,arm64,386
   ```
 - 改了版本号时：同时改 `VERSION` 和上面 go-winres 命令里的版本号
