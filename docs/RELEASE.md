@@ -78,7 +78,7 @@ scripts/publish-tos.py --product desktop --version X.Y.Z --date YYYY-MM-DD \
 | `…/releases.json` | 两个产品的全部版本，新版在前；下载页直接读，不用重新部署官网 |
 | `…/history/` | 每次更新前的 `releases.json` |
 
-`releases.json` 从 `https://folotoy-ai-passport.tos-cn-beijing.volces.com/tools/ai-passport-desktop/releases.json` 读取（不经过 CDN，更新立刻生效）；安装包的下载链接走同一个桶前面的 CDN `https://s.folotoy.cn/tools/ai-passport-desktop/`（TOS 自带域名禁止下载 `.apk`，CDN 在国内也更快）。安卓 App 也用这个脚本发布：`--product android`，文件名 `AI-Passport-Android-X.Y.Z.apk`，仓库是私有的，要加 `--notes-url`。只想把旧链接改成 CDN 时运行 `scripts/publish-tos.py --reindex`。上传后打开下载页，确认新版本出现、链接能下载。
+`releases.json` 从 `https://folotoy-ai-passport.tos-cn-beijing.volces.com/tools/ai-passport-desktop/releases.json` 读取（不经过 CDN，更新立刻生效）；安装包的下载链接走同一个桶前面的 CDN `https://s.folotoy.cn/tools/ai-passport-desktop/`（TOS 自带域名禁止下载 `.apk`，CDN 在国内也更快）。安卓 App 也用这个脚本发布：`--product android`，文件名 `AI-Passport-Android-X.Y.Z.apk`，仓库是私有的，要加 `--notes-url`。只想把旧链接改成 CDN、或者改了 `PRODUCTS` 里的产品名时，运行 `scripts/publish-tos.py --reindex`。上传后打开下载页，确认新版本出现、链接能下载。
 
 ## 5. 清理旧版本
 

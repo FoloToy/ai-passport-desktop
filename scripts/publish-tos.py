@@ -140,10 +140,11 @@ def save_index(index, previous):
 
 
 def reindex():
-    """Point every download link at the CDN; files themselves are not touched."""
+    """Point every download link at the CDN and refresh product names; files are not touched."""
     index = fetch_index()
     previous = json.dumps(index, ensure_ascii=False, indent=1)
-    for prod in index["products"].values():
+    for key, prod in index["products"].items():
+        prod.update(PRODUCTS.get(key, {}))
         for rel in prod["releases"]:
             for f in rel["files"]:
                 f["url"] = f["url"].replace(PUBLIC, DOWNLOADS)
@@ -154,7 +155,7 @@ def reindex():
     index["base"] = DOWNLOADS
     index["updatedAt"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     save_index(index, previous)
-    print("Download links now use", DOWNLOADS)
+    print("Download links now use", DOWNLOADS, "; product names refreshed")
 
 
 def main():
