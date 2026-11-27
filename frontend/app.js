@@ -1,5 +1,5 @@
 'use strict';
-/* AI Passport 玩法社区 — offline desktop UI. Plain JS, no external resources. */
+/* AI Passport desktop UI. Plain JS, no external resources. */
 
 const $ = (s, root = document) => root.querySelector(s);
 const meta = name => $(`meta[name="${name}"]`).content;
@@ -23,7 +23,7 @@ const I18N = {
     no_firmware: '固件还没有下载，第一次刷入时会自动下载并保存，下次不用再下载。', removed_note: '该玩法已从社区下架，本地仍保留了一份。',
     downloads: '下载', hearts: '点赞', favorites: '收藏', comments: '评论',
     // onboarding
-    welcome_title: '欢迎使用 AI Passport 玩法社区',
+    welcome_title: '欢迎使用 AI Passport',
     welcome_sub: '首次使用需要把玩法社区的玩法信息和图片下载到电脑上，之后不联网也能浏览。固件在第一次刷入某个玩法时下载，下载过的会保存下来，下次刷入不用再下载。',
     folder_label: '玩法存储目录', change: '更改', start_update: '开始更新',
     fact_plays: '玩法数量', fact_size: '预计占用', fact_free: '可用空间', about_n: n => `约 ${n}`,
@@ -125,7 +125,7 @@ const I18N = {
     open_folder: 'Show files', open_web: 'Web page', firmware: 'Firmware', size: 'Size',
     no_firmware: 'The firmware is not downloaded yet. It is downloaded and kept the first time you install, so later installs need no download.', removed_note: 'This app was removed from the community; a local copy is kept.',
     downloads: 'Downloads', hearts: 'Likes', favorites: 'Saves', comments: 'Comments',
-    welcome_title: 'Welcome to the AI Passport App Library',
+    welcome_title: 'Welcome to AI Passport',
     welcome_sub: 'First, download the app info and images from the community to this computer; after that you can browse without a network. Firmware is downloaded the first time you install an app and kept, so the next install needs no download.',
     folder_label: 'Library folder', change: 'Change', start_update: 'Start download',
     fact_plays: 'Apps', fact_size: 'Estimated size', fact_free: 'Free space', about_n: n => `about ${n}`,
@@ -410,7 +410,7 @@ function render() {
   if (!S.server) return;
   lang = resolveLang();
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-  document.title = lang === 'zh' ? 'AI Passport 玩法社区' : 'AI Passport App Library';
+  document.title = 'AI Passport';
   renderTop();
   const r = parseRoute();
   const lib = S.server.library;

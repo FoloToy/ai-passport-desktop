@@ -4,7 +4,7 @@
 
 ## 项目是什么
 
-**AI Passport 玩法社区（离线桌面版）**：把 https://ai-passport.folotoy.cn/plays/ 的玩法全部下载到本地，离线浏览，并把玩法固件刷进 AI Passport（ESP32-C3，8 MB Flash）。界面和安卓 App 一致，分「设备 / 玩法 / 工具 / 我的」四个标签（设置在「我的」里）。「工具」页：安装本地固件、备份设备、我的备份（写回原设备）、恢复出厂、安装小程序玩法安装器、BluFi 配网。蓝牙功能（附近设备、通行证编辑、安装模式设备配网和无线安装、BluFi）由 Go 端 `internal/ble` 操作蓝牙，前端用 `frontend/passport-ble/`（和安卓同一套协议代码）通过 `/api/ble/*` 收发数据。
+**AI Passport（桌面版）**：把 https://ai-passport.folotoy.cn/plays/ 的玩法全部下载到本地，离线浏览，并把玩法固件刷进 AI Passport（ESP32-C3，8 MB Flash）。界面和安卓 App 一致，分「设备 / 玩法 / 工具 / 我的」四个标签（设置在「我的」里）。「工具」页：安装本地固件、备份设备、我的备份（写回原设备）、恢复出厂、安装小程序玩法安装器、BluFi 配网。蓝牙功能（附近设备、通行证编辑、安装模式设备配网和无线安装、BluFi）由 Go 端 `internal/ble` 操作蓝牙，前端用 `frontend/passport-ble/`（和安卓同一套协议代码）通过 `/api/ble/*` 收发数据。
 
 - 仓库：`FoloToy/ai-passport-desktop`（公开，MIT 许可证，见 `LICENSE`），默认分支 `main`，PR 也提到 `main`。
 - 平台：macOS（arm64 / x86_64 / universal）、Windows 10/11 x64、Linux（amd64 / arm64，Ubuntu 22.04+ / Debian 12+，`.deb` 和 `.tar.gz`）。
@@ -131,6 +131,19 @@ ESP_REAL_BACKUP_DIR=<目录> go test -count=1 -v -run TestRealDeviceBackup ./pkg
 - 提交信息用 [Conventional Commits](https://www.conventionalcommits.org/)（`feat:`、`fix:`、`docs:`、`chore:`…）。
 - 只有用户要求时才提交、推送或发版。
 - 不要提交 `dist/`、`.runtime/`、备份文件、本机路径或个人信息。仓库是公开的，提交的一切都会被所有人看到。
+
+## 名字
+
+所有客户端（macOS、Windows 10/11、Windows 7、Linux、安卓）统一叫 **AI Passport**，中英文一样（`settings.AppName`）。0.8 及以前叫「AI Passport 玩法社区」，2026-11-27 改名：
+
+| | 现在 | 0.8 及以前 |
+| --- | --- | --- |
+| 安装包 | `AI-Passport-X.Y.Z-<平台>.<扩展名>`（Windows 7：`AI-Passport-X.Y.Z-Windows7-x64.zip`；安卓：`AI-Passport-Android-X.Y.Z.apk`） | `AI-Passport-Plays-…`、`AI-Passport-Desktop-Windows7-…` |
+| 程序 | `AI Passport.app`（里面是 `ai-passport`）、`AI Passport.exe`、Linux `ai-passport` | `AI Passport 玩法社区.app`、`AIPassportPlays.exe`、`ai-passport-plays` |
+| 标识 | `com.folotoy.ai-passport`、Debian 包 `ai-passport`（Replaces/Conflicts/Provides `ai-passport-plays`）、Windows 安装目录 `FoloToy\AI Passport`（AppId 不变，升级时删掉旧目录和旧快捷方式） | `com.folotoy.ai-passport-plays`、`ai-passport-plays`、`FoloToy\AI Passport Plays` |
+| 数据 | `<UserConfigDir>/FoloToy/AI Passport`、默认玩法目录 `~/Documents/AI Passport` | 旧目录在启动时由 `settings.StateDir` / `Store.MigrateLibrary` 自动改名搬过来；用户自己选的玩法目录不动 |
+
+**不改的**：User-Agent `AIPassportPlays/<版本>` 是和社区后端约定的协议标识（官网 `desktop_sync.go` 和下载日志清理按它识别桌面端），改了会让后端功能失效。仓库名、TOS 路径 `tools/ai-passport-desktop/` 也不变。"AI Passport 玩法社区"仍然是官网社区的名字，界面里说到社区时照用。
 
 ## 发版
 

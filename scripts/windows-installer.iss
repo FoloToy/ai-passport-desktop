@@ -5,10 +5,10 @@
   #error OutputDir is required
 #endif
 #ifndef AppVersion
-  #define AppVersion "0.8.0"
+  #define AppVersion "0.9.0"
 #endif
-#define AppTitle "AI Passport 玩法社区"
-#define ExeName "AIPassportPlays.exe"
+#define AppTitle "AI Passport"
+#define ExeName "AI Passport.exe"
 
 [Setup]
 AppId={{6C1F1C38-2E57-4E1B-9C0B-2F5D3A9F7A41}
@@ -16,7 +16,10 @@ AppName={#AppTitle}
 AppVersion={#AppVersion}
 AppPublisher=FoloToy
 AppPublisherURL=https://ai-passport.folotoy.cn/plays/
-DefaultDirName={localappdata}\Programs\FoloToy\AI Passport Plays
+DefaultDirName={localappdata}\Programs\FoloToy\AI Passport
+; Same AppId as before 0.9, so this upgrades the old "AI Passport 玩法社区" in place; move it to the new folder.
+UsePreviousAppDir=no
+UsePreviousGroup=no
 DefaultGroupName={#AppTitle}
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
@@ -24,7 +27,7 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 OutputDir={#OutputDir}
-OutputBaseFilename=AI-Passport-Plays-{#AppVersion}-Windows-x64-Setup
+OutputBaseFilename=AI-Passport-{#AppVersion}-Windows-x64-Setup
 #ifdef IconFile
 SetupIconFile={#IconFile}
 #endif
@@ -35,6 +38,12 @@ UninstallDisplayIcon={app}\{#ExeName}
 UninstallDisplayName={#AppTitle}
 CloseApplications=yes
 RestartApplications=no
+
+; Up to 0.8 the app was "AI Passport 玩法社区" (AIPassportPlays.exe) in "AI Passport Plays".
+[InstallDelete]
+Type: filesandordirs; Name: "{localappdata}\Programs\FoloToy\AI Passport Plays"
+Type: filesandordirs; Name: "{userprograms}\AI Passport 玩法社区"
+Type: files; Name: "{userdesktop}\AI Passport 玩法社区.lnk"
 
 [Files]
 Source: "{#PackageDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs

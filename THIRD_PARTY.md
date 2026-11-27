@@ -1,6 +1,6 @@
 # Third-party software
 
-AI Passport 玩法社区 uses Wails v3 (MIT) for its desktop host. Dependency
+AI Passport (desktop) uses Wails v3 (MIT) for its desktop host. Dependency
 versions and module checksums are pinned in go.mod and go.sum. Wails source:
 https://github.com/wailsapp/wails/tree/v3.0.0-beta.24
 

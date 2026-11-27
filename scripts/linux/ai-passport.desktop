@@ -1,11 +1,11 @@
 [Desktop Entry]
 Type=Application
-Name=AI Passport App Library
-Name[zh_CN]=AI Passport 玩法社区
+Name=AI Passport
+Name[zh_CN]=AI Passport
 Comment=Browse AI Passport apps offline and install them on your device
 Comment[zh_CN]=离线浏览 AI Passport 玩法，并刷入设备
-Exec=ai-passport-plays
-Icon=ai-passport-plays
+Exec=ai-passport
+Icon=ai-passport
 Terminal=false
 Categories=Utility;Development;
 Keywords=AI Passport;ESP32;firmware;flasher;

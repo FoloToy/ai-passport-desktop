@@ -38,14 +38,14 @@ done
 # Install each .deb on a clean Ubuntu 24.04 and run the self-test: this checks the
 # declared dependencies resolve and the binary links on the newer release too.
 for arch in ${LINUX_ARCHES:-amd64 arm64}; do
-  deb=AI-Passport-Plays-$version-Linux-$arch.deb
+  deb=AI-Passport-$version-Linux-$arch.deb
   echo "== install test: $deb on ubuntu:24.04/$arch"
   docker run --rm --platform "linux/$arch" -v "$dest:/out:ro" ubuntu:24.04 bash -euc "
     export DEBIAN_FRONTEND=noninteractive
     apt-get update -qq >/dev/null
     apt-get install -y -qq /out/$deb >/dev/null
     test -f /usr/lib/udev/rules.d/60-ai-passport.rules
-    test -f /usr/share/applications/ai-passport-plays.desktop
-    ai-passport-plays -self-test"
+    test -f /usr/share/applications/ai-passport.desktop
+    ai-passport -self-test"
 done
-ls -l "$dest"/AI-Passport-Plays-"$version"-Linux-*
+ls -l "$dest"/AI-Passport-"$version"-Linux-*

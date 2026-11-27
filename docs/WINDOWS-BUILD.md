@@ -14,12 +14,12 @@
 
 | 文件 | 说明 |
 | --- | --- |
-| `AI-Passport-Plays-0.5.0-Windows-x64-Setup.exe` | 安装版（Inno Setup，按用户安装，不需要管理员权限） |
-| `AI-Passport-Plays-0.5.0-Windows-x64.zip` | 免安装版 |
+| `AI-Passport-0.5.0-Windows-x64-Setup.exe` | 安装版（Inno Setup，按用户安装，不需要管理员权限） |
+| `AI-Passport-0.5.0-Windows-x64.zip` | 免安装版 |
 | `*.sha256` | 校验和 |
-| `AI Passport Plays\` | 打包用的临时目录（不需要上传） |
+| `AI Passport\` | 打包用的临时目录（不需要上传） |
 
-安装后的结构：`AIPassportPlays.exe`（刷机功能已经内置，用 Go 实现，不再有单独的刷机程序），旁边是 `runtime\MicrosoftEdgeWebview2Setup.exe`、`ThirdParty\`。
+安装后的结构：`AI Passport.exe`（刷机功能已经内置，用 Go 实现，不再有单独的刷机程序），旁边是 `runtime\MicrosoftEdgeWebview2Setup.exe`、`ThirdParty\`。
 
 ## 步骤
 
@@ -46,7 +46,7 @@ powershell -ExecutionPolicy Bypass -File scripts\build-on-windows.ps1 -Upload
 3. 运行 `scripts\package-windows.ps1`，依次执行：
    - `go test ./...`，然后 `go build -H windowsgui`。Go 版本由 `GOTOOLCHAIN=go1.26.0` 自动下载。
    - 下载微软官方的 WebView2 安装程序，并校验它的签名。
-   - 自检打包好的程序：`AIPassportPlays.exe -self-test`（检查内置的 ESP32-C3 flasher stub 和出厂固件）。
+   - 自检打包好的程序：`AI Passport.exe -self-test`（检查内置的 ESP32-C3 flasher stub 和出厂固件）。
    - 生成 ZIP，用 Inno Setup 生成 Setup.exe，写入 sha256。
 4. 带 `-Upload` 时，执行 `gh release upload v0.5.0 ... --clobber`。
 
@@ -59,7 +59,7 @@ powershell -ExecutionPolicy Bypass -File scripts\package-windows.ps1
 
 ## 打包完成后的验收
 
-1. 运行 Setup.exe 安装，打开"AI Passport 玩法社区"。窗口应该显示深色界面和欢迎页。
+1. 运行 Setup.exe 安装，打开"AI Passport"。窗口应该显示深色界面和欢迎页。
 2. 点"更改"能打开系统的文件夹选择框；选一个空文件夹后点"开始更新"，应该能开始下载。
    - 如果报"目录无效 / Invalid folder"，说明 POST 请求体没有传到 Go，看 `internal/desktop/server.go` 里读取请求体的那段。macOS 上就出过这个问题（WebKit 不带 Content-Length），已经修复。
 3. 玩法信息和图片下载完后能浏览；固件下载如果遇到限流，会显示"等待服务器"倒计时，属于正常现象。
@@ -87,7 +87,7 @@ powershell -ExecutionPolicy Bypass -File scripts\package-windows.ps1
 - `rsrc_windows_amd64.syso` / `rsrc_windows_arm64.syso`：exe 的图标、版本信息和清单（DPI 感知等），由 `go-winres` 根据 `assets/icon.png` 生成。重新生成的命令：
   ```sh
   go run github.com/tc-hib/go-winres@v0.3.3 simply --icon assets/icon.png --manifest gui \
-    --product-name "AI Passport 玩法社区" --file-description "AI Passport 玩法社区" --copyright FoloToy \
-    --product-version 0.8.0.0 --file-version 0.8.0.0 --original-filename AIPassportPlays.exe --arch amd64,arm64,386
+    --product-name "AI Passport" --file-description "AI Passport" --copyright FoloToy \
+    --product-version 0.9.0.0 --file-version 0.9.0.0 --original-filename AI Passport.exe --arch amd64,arm64,386
   ```
 - 改了版本号时：同时改 `VERSION` 和上面 go-winres 命令里的版本号

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build "AI Passport 玩法社区.app" for Apple Silicon (arm64), Intel (x86_64) and a
+# Build "AI Passport.app" for Apple Silicon (arm64), Intel (x86_64) and a
 # Universal app holding both, each as its own DMG. Runs on either kind of Mac: the
 # other architecture is cross-compiled with clang -arch.
 # Env: PLAYS_DIST (output dir), ALLOW_DIRTY=1 (skip clean-tree check).
@@ -10,8 +10,8 @@ export GOTOOLCHAIN=go1.26.0
 export MACOSX_DEPLOYMENT_TARGET=12.0
 
 version=$(tr -d '[:space:]' < VERSION)
-app_name='AI Passport 玩法社区'
-exe=ai-passport-plays
+app_name='AI Passport'
+exe=ai-passport
 dest=${PLAYS_DIST:-dist}
 mkdir -p "$dest"
 dest=$(cd "$dest" && pwd)
@@ -42,7 +42,7 @@ lipo -info "$work/$exe-universal"
 package() {
   local label=$1
   local app="$dest/$label/$app_name.app"
-  local dmg="$dest/AI-Passport-Plays-$version-macOS-$label.dmg"
+  local dmg="$dest/AI-Passport-$version-macOS-$label.dmg"
   rm -rf "$dest/$label"
   mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources/ThirdParty/esp-flasher-stub"
   cp "$work/$exe-$label" "$app/Contents/MacOS/$exe"
@@ -55,7 +55,7 @@ package() {
 <plist version="1.0"><dict>
 <key>CFBundleName</key><string>$app_name</string>
 <key>CFBundleDisplayName</key><string>$app_name</string>
-<key>CFBundleIdentifier</key><string>com.folotoy.ai-passport-plays</string>
+<key>CFBundleIdentifier</key><string>com.folotoy.ai-passport</string>
 <key>CFBundleExecutable</key><string>$exe</string>
 <key>CFBundleIconFile</key><string>AppIcon</string>
 <key>CFBundlePackageType</key><string>APPL</string>

@@ -16,8 +16,8 @@
 
 ```sh
 go run github.com/tc-hib/go-winres@v0.3.3 simply --icon assets/icon.png --manifest gui \
-  --product-name "AI Passport 玩法社区" --file-description "AI Passport 玩法社区" --copyright FoloToy \
-  --product-version X.Y.Z.0 --file-version X.Y.Z.0 --original-filename AIPassportPlays.exe --arch amd64,arm64,386
+  --product-name "AI Passport" --file-description "AI Passport" --copyright FoloToy \
+  --product-version X.Y.Z.0 --file-version X.Y.Z.0 --original-filename AI Passport.exe --arch amd64,arm64,386
 ```
 
 然后 `go vet ./... && go test -race ./...`，提交 `chore: release X.Y.Z` 并推到 `main`。
@@ -28,8 +28,8 @@ go run github.com/tc-hib/go-winres@v0.3.3 simply --icon assets/icon.png --manife
 
 | 平台 | 在哪里打 | 命令 | 产物 |
 | --- | --- | --- | --- |
-| macOS arm64 / x86_64 / universal | Apple 芯片的 Mac | `scripts/package-mac.sh` | `dist/AI-Passport-Plays-X.Y.Z-macOS-{arm64,x86_64,universal}.dmg` |
-| Linux amd64 / arm64 | 装了 Docker 的 Mac（OrbStack）或 Linux | `scripts/package-linux.sh` | `dist/AI-Passport-Plays-X.Y.Z-Linux-{amd64,arm64}.{deb,tar.gz}` |
+| macOS arm64 / x86_64 / universal | Apple 芯片的 Mac | `scripts/package-mac.sh` | `dist/AI-Passport-X.Y.Z-macOS-{arm64,x86_64,universal}.dmg` |
+| Linux amd64 / arm64 | 装了 Docker 的 Mac（OrbStack）或 Linux | `scripts/package-linux.sh` | `dist/AI-Passport-X.Y.Z-Linux-{amd64,arm64}.{deb,tar.gz}` |
 | Windows 10/11 x64 | Windows 10/11 机器 | `powershell -ExecutionPolicy Bypass -File scripts\build-on-windows.ps1` | `dist\windows\…-Windows-x64-Setup.exe` 和 `…-Windows-x64.zip` |
 
 每个产物旁边都有 `.sha256` 文件，一起上传。

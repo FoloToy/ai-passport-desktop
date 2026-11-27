@@ -43,15 +43,15 @@ DOWNLOADS = f"https://s.folotoy.cn/{PREFIX}"
 
 PRODUCTS = {
     "desktop": {
-        "name": {"zh": "AI Passport 玩法社区（桌面版）", "en": "AI Passport App Library (desktop)"},
+        "name": {"zh": "AI Passport（桌面版）", "en": "AI Passport (desktop)"},
         "repo": "https://github.com/FoloToy/ai-passport-desktop",
     },
     "windows7": {
-        "name": {"zh": "AI Passport 玩法社区（Windows 7 版）", "en": "AI Passport App Library (Windows 7 edition)"},
+        "name": {"zh": "AI Passport（Windows 7 版）", "en": "AI Passport (Windows 7 edition)"},
         "repo": "https://github.com/FoloToy/ai-passport-desktop-windows7",
     },
     "android": {
-        "name": {"zh": "AI Passport 玩法社区（安卓版）", "en": "AI Passport App Library (Android)"},
+        "name": {"zh": "AI Passport（安卓版）", "en": "AI Passport (Android)"},
         "repo": "https://github.com/FoloToy/ai-passport-android",
     },
 }
@@ -67,8 +67,9 @@ PATTERNS = [
     (r"-Linux-arm64\.deb$", "desktop", "linux-arm64-deb"),
     (r"-Linux-amd64\.tar\.gz$", "desktop", "linux-amd64-tar"),
     (r"-Linux-arm64\.tar\.gz$", "desktop", "linux-arm64-tar"),
-    (r"-Windows7-[\d.]+-x64\.zip$", "windows7", "windows7-x64"),
-    (r"-Windows7-[\d.]+-x86\.zip$", "windows7", "windows7-x86"),
+    # AI-Passport-X.Y.Z-Windows7-x64.zip; up to 0.2.0 AI-Passport-Desktop-Windows7-X.Y.Z-x64.zip
+    (r"-Windows7-(?:[\d.]+-)?x64\.zip$", "windows7", "windows7-x64"),
+    (r"-Windows7-(?:[\d.]+-)?x86\.zip$", "windows7", "windows7-x86"),
     (r"^AI-Passport-Android-[\d.]+\.apk$", "android", "android-apk"),
 ]
 

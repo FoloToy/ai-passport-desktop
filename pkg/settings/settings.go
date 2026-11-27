@@ -46,15 +46,6 @@ type Store struct {
 	cur  Settings
 }
 
-// DefaultLibraryDir is suggested on first launch.
-func DefaultLibraryDir() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return ""
-	}
-	return filepath.Join(home, "Documents", "AI Passport Plays")
-}
-
 func Open(dir string) (*Store, error) {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return nil, err

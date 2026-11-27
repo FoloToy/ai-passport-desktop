@@ -23,18 +23,18 @@ go vet -tags gtk3 ./...
 go test -tags gtk3 ./... 2>&1 | grep -v '^?' || { echo 'go test failed' >&2; exit 1; }
 
 work=$(mktemp -d)
-CGO_ENABLED=1 go build -tags "$tags" -trimpath -ldflags "-s -w -X main.version=$VERSION" -o "$work/ai-passport-plays" .
-"$work/ai-passport-plays" -self-test
+CGO_ENABLED=1 go build -tags "$tags" -trimpath -ldflags "-s -w -X main.version=$VERSION" -o "$work/ai-passport" .
+"$work/ai-passport" -self-test
 
-name=AI-Passport-Plays-$VERSION-Linux-$ARCH
+name=AI-Passport-$VERSION-Linux-$ARCH
 
 # .deb ------------------------------------------------------------------------
 root=$work/deb
-install -Dm755 "$work/ai-passport-plays" "$root/usr/bin/ai-passport-plays"
-install -Dm644 scripts/linux/ai-passport-plays.desktop "$root/usr/share/applications/ai-passport-plays.desktop"
-install -Dm644 assets/icon.png "$root/usr/share/icons/hicolor/1024x1024/apps/ai-passport-plays.png"
+install -Dm755 "$work/ai-passport" "$root/usr/bin/ai-passport"
+install -Dm644 scripts/linux/ai-passport.desktop "$root/usr/share/applications/ai-passport.desktop"
+install -Dm644 assets/icon.png "$root/usr/share/icons/hicolor/1024x1024/apps/ai-passport.png"
 install -Dm644 scripts/linux/60-ai-passport.rules "$root/usr/lib/udev/rules.d/60-ai-passport.rules"
-doc=$root/usr/share/doc/ai-passport-plays
+doc=$root/usr/share/doc/ai-passport
 install -Dm644 LICENSE "$doc/copyright"
 install -Dm644 THIRD_PARTY.md "$doc/THIRD_PARTY.md"
 install -Dm644 pkg/esp/stub/LICENSE-APACHE "$doc/esp-flasher-stub/LICENSE-APACHE"
@@ -42,17 +42,20 @@ install -Dm644 pkg/esp/stub/LICENSE-MIT "$doc/esp-flasher-stub/LICENSE-MIT"
 echo "$COMMIT" > "$doc/source-commit.txt"
 mkdir -p "$root/DEBIAN"
 cat > "$root/DEBIAN/control" <<CONTROL
-Package: ai-passport-plays
+Package: ai-passport
 Version: $VERSION
 Architecture: $ARCH
 Maintainer: FoloToy <https://github.com/FoloToy/ai-passport-desktop>
 Installed-Size: $(du -sk "$root/usr" | cut -f1)
 Depends: libc6 (>= 2.35), libgtk-3-0 | libgtk-3-0t64, libwebkit2gtk-4.1-0
 Recommends: bluez
+Replaces: ai-passport-plays
+Conflicts: ai-passport-plays
+Provides: ai-passport-plays
 Section: utils
 Priority: optional
 Homepage: https://ai-passport.folotoy.cn/tools/desktop-app/
-Description: AI Passport App Library (desktop)
+Description: AI Passport (desktop)
  Download every AI Passport community app, browse them offline and install
  them on an AI Passport over USB. Also backs up and restores the firmware.
  Installs a udev rule so the logged-in user can open the device's serial port.
@@ -73,9 +76,9 @@ dpkg-deb --root-owner-group -Zxz --build "$root" "/out/$name.deb" >/dev/null
 
 # .tar.gz (other distributions) -------------------------------------------------
 tdir=$work/$name
-install -Dm755 "$work/ai-passport-plays" "$tdir/ai-passport-plays"
-install -Dm644 scripts/linux/ai-passport-plays.desktop "$tdir/ai-passport-plays.desktop"
-install -Dm644 assets/icon.png "$tdir/ai-passport-plays.png"
+install -Dm755 "$work/ai-passport" "$tdir/ai-passport"
+install -Dm644 scripts/linux/ai-passport.desktop "$tdir/ai-passport.desktop"
+install -Dm644 assets/icon.png "$tdir/ai-passport.png"
 install -Dm644 scripts/linux/60-ai-passport.rules "$tdir/60-ai-passport.rules"
 install -Dm644 scripts/linux/README.txt "$tdir/README.txt"
 install -Dm644 LICENSE "$tdir/ThirdParty/LICENSE"

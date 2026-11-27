@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
-	"path/filepath"
 	"runtime"
 	"syscall"
 	"time"
@@ -26,9 +25,9 @@ import (
 	"github.com/FoloToy/ai-passport-desktop/pkg/syncer"
 )
 
-var version = "0.8.0-dev"
+var version = "0.9.0-dev"
 
-const appTitle = "AI Passport 玩法社区"
+const appTitle = settings.AppName
 
 func main() {
 	headless := flag.Bool("headless", false, "Serve the UI on a private loopback HTTP listener (development)")
@@ -44,11 +43,10 @@ func main() {
 
 	dir := *stateDir
 	if dir == "" {
-		base, err := os.UserConfigDir()
-		if err != nil {
+		var err error
+		if dir, err = settings.StateDir(); err != nil {
 			log.Fatal(err)
 		}
-		dir = filepath.Join(base, "FoloToy", "AI Passport Plays")
 	}
 	store, err := settings.Open(dir)
 	if err != nil {
@@ -59,6 +57,9 @@ func main() {
 		log.Fatal(err)
 	}
 	defer unlock()
+	if err := store.MigrateLibrary(); err != nil {
+		log.Print("library: ", err)
+	}
 
 	runner := device.Runner{}
 	sync := syncer.New(syncer.NewClient(*origin, version))

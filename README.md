@@ -1,6 +1,6 @@
-# AI Passport 玩法社区（离线桌面版）
+# AI Passport（桌面版）
 
-[AI Passport 玩法社区](https://ai-passport.folotoy.cn/plays/) 的本地桌面 App：把全部玩法、图片和固件下载到电脑上，之后不联网也能浏览玩法，并通过 USB 把玩法刷入 AI Passport（ESP32-C3）。
+[AI Passport 玩法社区](https://ai-passport.folotoy.cn/plays/) 的本地桌面 App，名字和安卓 App 一样叫 **AI Passport**（0.8 及以前叫「AI Passport 玩法社区」）：把全部玩法、图片和固件下载到电脑上，之后不联网也能浏览玩法，并通过 USB 把玩法刷入 AI Passport（ESP32-C3）。
 
 The offline desktop edition of the AI Passport App Library. It downloads every play, image and firmware to your computer, then lets you browse and install plays to an AI Passport over USB without a network.
 
@@ -63,7 +63,7 @@ The offline desktop edition of the AI Passport App Library. It downloads every p
 
 ## 玩法存储目录
 
-默认路径是 `~/Documents/AI Passport Plays`，可以在设置里更换。
+默认路径是 `~/Documents/AI Passport`，可以在设置里更换。
 
 ```
 index.json                 分类、专题、全部玩法（界面读取这个文件）
@@ -73,7 +73,7 @@ plays/<slug>/firmware.bin  已校验的固件
 avatars/<name>.webp        作者头像
 ```
 
-设置本身保存在 `~/Library/Application Support/FoloToy/AI Passport Plays/settings.json`（Linux 是 `~/.config/FoloToy/AI Passport Plays/`），只记录目录、备份目录和语言。恢复出厂时，内置固件会先解压到同一目录下的 `factory-firmware/` 并再次校验。
+设置本身保存在 `~/Library/Application Support/FoloToy/AI Passport/settings.json`（Linux 是 `~/.config/FoloToy/AI Passport/`），只记录目录、备份目录和语言。恢复出厂时，内置固件会先解压到同一目录下的 `factory-firmware/` 并再次校验。
 
 ## 架构
 
@@ -135,9 +135,9 @@ ALLOW_DIRTY=1 scripts/package-mac.sh   # 有未提交改动时也打包
 
 | 文件 | 适用 |
 | --- | --- |
-| `AI-Passport-Plays-<版本>-macOS-arm64.dmg` | Apple 芯片（M 系列） |
-| `AI-Passport-Plays-<版本>-macOS-x86_64.dmg` | Intel 芯片 |
-| `AI-Passport-Plays-<版本>-macOS-universal.dmg` | 两种都能用，体积大一倍 |
+| `AI-Passport-<版本>-macOS-arm64.dmg` | Apple 芯片（M 系列） |
+| `AI-Passport-<版本>-macOS-x86_64.dmg` | Intel 芯片 |
+| `AI-Passport-<版本>-macOS-universal.dmg` | 两种都能用，体积大一倍 |
 
 在 Apple 芯片的 Mac 上就能交叉编译出 Intel 版；装了 Rosetta 时，脚本会用 Rosetta 跑一遍 Intel 版的自检。
 
@@ -167,9 +167,9 @@ LINUX_ARCHES=amd64 ALLOW_DIRTY=1 scripts/package-linux.sh
 
 | 文件 | 适用 |
 | --- | --- |
-| `AI-Passport-Plays-<版本>-Linux-amd64.deb` | Ubuntu / Debian，x86_64（推荐） |
-| `AI-Passport-Plays-<版本>-Linux-arm64.deb` | Ubuntu / Debian，ARM64 |
-| `AI-Passport-Plays-<版本>-Linux-{amd64,arm64}.tar.gz` | 其他发行版，需要自己装 GTK 3 和 WebKitGTK 4.1 |
+| `AI-Passport-<版本>-Linux-amd64.deb` | Ubuntu / Debian，x86_64（推荐） |
+| `AI-Passport-<版本>-Linux-arm64.deb` | Ubuntu / Debian，ARM64 |
+| `AI-Passport-<版本>-Linux-{amd64,arm64}.tar.gz` | 其他发行版，需要自己装 GTK 3 和 WebKitGTK 4.1 |
 
 **串口权限**：Ubuntu 上 `/dev/ttyACM*` 默认只有 `dialout` 组能打开。.deb 会装 `/usr/lib/udev/rules.d/60-ai-passport.rules`（`scripts/linux/`），给当前登录的用户开放 AI Passport（`303a:1001`）的串口，并让 ModemManager 不去探测它；装完重新插拔一次设备即可。没有权限时 App 会直接报 `port_permission`，不会一直等。
 

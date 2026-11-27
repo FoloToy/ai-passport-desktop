@@ -333,7 +333,7 @@ func (j *restoreJob) restore(d Device, segs []esp.Segment) (restoreResult, error
 	j.log("cardid is byte-for-byte unchanged")
 
 	report := []string{
-		"tool=AI Passport Plays factory restore",
+		"tool=AI Passport factory restore",
 		"factory_firmware=" + factory.Version,
 		"time=" + time.Now().Format("2006-01-02T15:04:05"),
 		"port=" + j.port,
@@ -427,7 +427,7 @@ func (j *restoreJob) backup(d Device) (restoreResult, error) {
 	}
 	_ = os.WriteFile(path+".sha256", []byte(digest+"  "+name+"\n"), 0o644)
 	report := []string{
-		"tool=AI Passport Plays firmware backup",
+		"tool=AI Passport firmware backup",
 		"time=" + time.Now().Format("2006-01-02T15:04:05"),
 		"port=" + j.port,
 		"chip=esp32c3",

@@ -19,7 +19,7 @@ func Acquire(dir string) (func(), error) {
 	ok, _, _ := lock.Call(f.Fd(), 3, 0, 1, 0, uintptr(unsafe.Pointer(over)))
 	if ok == 0 {
 		f.Close()
-		return nil, fmt.Errorf("AI Passport 玩法社区已在运行，请切换回已有窗口")
+		return nil, fmt.Errorf("AI Passport 已在运行，请切换回已有窗口")
 	}
 	return func() { unlock.Call(f.Fd(), 0, 1, 0, uintptr(unsafe.Pointer(over))); _ = f.Close() }, nil
 }

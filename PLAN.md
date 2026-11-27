@@ -1,4 +1,4 @@
-# AI Passport 玩法社区（离线桌面版）开发方案
+# AI Passport（桌面版）开发方案
 
 ## 1. 目标
 
@@ -59,9 +59,9 @@ ai-passport-plays/
   scripts/             打包脚本（复用改名）
 ```
 
-App 私有配置：`<UserConfigDir>/FoloToy/AI Passport Plays/settings.json`，只存设置，不存玩法。
+App 私有配置：`<UserConfigDir>/FoloToy/AI Passport/settings.json`，只存设置，不存玩法。
 
-玩法存储目录（用户选择，默认 `~/Documents/AI Passport Plays`）：
+玩法存储目录（用户选择，默认 `~/Documents/AI Passport`）：
 ```
 index.json                 分类、专题、全部玩法摘要、taxonomyVersion、syncedAt
 plays/<slug>/meta.json     完整数据 + revisionId
@@ -129,7 +129,7 @@ worker 端（esptool）：
 - 刷机：单台；只支持 AI Passport，刷机前检查芯片必须是 ESP32-C3。
 - 设备 USB 免驱（与浏览器 Web Serial 刷机一致）。
 - 界面中英文；"分类特别难"指"分类 + 专题"。
-- 技术栈沿用 Magic-Flash；项目名"AI Passport 玩法社区"，仓库 FoloToy/ai-passport-desktop（2026-11-13 起公开，MIT；2026-11-14 由 ai-passport-plays 改名）。
+- 技术栈沿用 Magic-Flash；项目名"AI Passport 玩法社区"（2026-11-27 起所有客户端统一叫"AI Passport"），仓库 FoloToy/ai-passport-desktop（2026-11-13 起公开，MIT；2026-11-14 由 ai-passport-plays 改名）。
 
 ## 11. 实施中发现的问题
 

@@ -3,7 +3,7 @@
     [string]$InnoCompiler = $env:PLAYS_ISCC,
     [switch]$AllowDirty
 )
-# Build the Windows x64 installer (Setup.exe) and portable ZIP of AI Passport 玩法社区.
+# Build the Windows x64 installer (Setup.exe) and portable ZIP of AI Passport.
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 Set-Location (Join-Path $PSScriptRoot '..')
@@ -15,7 +15,7 @@ $env:GOTOOLCHAIN = 'go1.26.0'
 $env:CGO_ENABLED = '0'
 $env:GOOS = 'windows'
 $env:GOARCH = 'amd64'
-$exeName = 'AIPassportPlays.exe'
+$exeName = 'AI Passport.exe'
 
 function Invoke-Checked {
     param([string]$File, [string[]]$Arguments)
@@ -24,7 +24,7 @@ function Invoke-Checked {
 }
 
 $OutputDir = [IO.Path]::GetFullPath((Join-Path (Get-Location) $OutputDir))
-$package = Join-Path $OutputDir 'AI Passport Plays'
+$package = Join-Path $OutputDir 'AI Passport'
 if (Test-Path $OutputDir) { Remove-Item $OutputDir -Recurse -Force }
 New-Item -ItemType Directory -Force $package | Out-Null
 
@@ -51,9 +51,9 @@ if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notm
 }
 
 @"
-AI Passport 玩法社区 $version / Windows x64
+AI Passport $version / Windows x64
 
-安装版：运行 AI-Passport-Plays-$version-Windows-x64-Setup.exe。
+安装版：运行 AI-Passport-$version-Windows-x64-Setup.exe。
 免安装版：完整解压整个文件夹后运行 $exeName，请保留旁边的 ThirdParty、runtime 目录。
 不需要安装 Python。若提示缺少 WebView2，请运行 runtime\MicrosoftEdgeWebview2Setup.exe（需要联网）。
 本测试版没有代码签名，Windows 可能提示"已保护你的电脑"，点"更多信息 → 仍要运行"。
@@ -66,7 +66,7 @@ $selfTest = & (Join-Path $package $exeName) -self-test | Out-String
 if ($LASTEXITCODE -ne 0) { throw "Packaged self-test failed: $selfTest" }
 if (-not ($selfTest | ConvertFrom-Json).passed) { throw "Packaged self-test failed: $selfTest" }
 
-$zip = Join-Path $OutputDir "AI-Passport-Plays-$version-Windows-x64.zip"
+$zip = Join-Path $OutputDir "AI-Passport-$version-Windows-x64.zip"
 Compress-Archive -Path $package -DestinationPath $zip -CompressionLevel Optimal
 
 $iscc = $InnoCompiler
